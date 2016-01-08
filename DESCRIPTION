@@ -1,0 +1,26 @@
+Package: Director
+Title: Visualization of related, multi-level RNA-seq data in a dynamic
+        Sankey diagram
+Version: 0.99.2
+Author: Katherine Icay [aut, cre]
+Maintainer: Katherine Icay <katherine.icay@helsinki.fi>
+Description: Visualize relationships in multi-level RNA-seq data (e.g. miRNA
+    and target mRNA expression) as dynamic diagrams embedded in an HTML file.
+    Specifically, produce Sankey diagrams (http://bost.ocks.org/mike/sankey/)
+    representing relationships between pairs of interacting molecules as directed
+    paths between two nodes. Paths and nodes are coloured based on a quantitative
+    value representing relationship strength (e.g. correlation or regulatory score)
+    and molecular change (e.g. expression fold change between two conditions).
+    Colours used for paths and nodes can be defined by the user to indicate positive
+    and negative interaction. This package utilizes the Sankey plugin of the data-
+    driven JavaScript library D3 (Copyright 2015 Mike Bostock) to present data
+    in all modern browsers, eliminating the need for third-party visualization
+    software.
+Depends: R (>= 3.2.1)
+License: GPL-3
+biocViews: Visualization
+LazyData: true
+Imports: devtools, rCharts, utils, grDevices
+RoxygenNote: 5.0.1.9000
+NeedsCompilation: no
+Packaged: 2015-12-23 11:42:14 UTC; icay

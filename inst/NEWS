@@ -1,0 +1,11 @@
+CHANGES IN VERSION 0.99.2
+-------------------------------------
+    o Added 'ovca' dataset
+
+CHANGES IN VERSION 0.99.1
+-------------------------------------
+    o Remove a package dependency
+
+CHANGES IN VERSION 0.99.0
+-------------------------------------
+    o First submission to Bioc-devel
