@@ -16,11 +16,14 @@ Description: Visualize relationships in multi-level RNA-seq data (e.g. miRNA
     driven JavaScript library D3 (Copyright 2015 Mike Bostock) to present data
     in all modern browsers, eliminating the need for third-party visualization
     software.
+URL: https://github.com/kzouchka/Director
+BugReports: https://github.com/kzouchka/Director/issues
 Depends: R (>= 3.2.1)
 License: GPL-3
 biocViews: Visualization
 LazyData: true
 Imports: devtools, rCharts, utils, grDevices
+Remotes: ramnathv/rCharts
 RoxygenNote: 5.0.1.9000
 NeedsCompilation: no
 Packaged: 2015-12-23 11:42:14 UTC; icay
