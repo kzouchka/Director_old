@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Director by kzouchka</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Director</h1>
+        <p>dynamic, browser-enabled visualization of multi-level regulatory interactions</p>
+
+        <p class="view"><a href="https://github.com/kzouchka/Director">View the Project on GitHub <small>kzouchka/Director</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/kzouchka/Director/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/kzouchka/Director/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/kzouchka/Director">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>
+<a id="summary" class="anchor" href="#summary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary</h3>
+
+<p>As datasets from high-throughput technology grow increasingly complex, novel approaches are needed to visually convey key findings quickly and effectively. Director is an <a href="http://www.r-project.org/">R</a> package designed to streamline the visualization of molecular effects in regulatory cascades. It utilizes a modified Sankey plugin of the JavaScript library <a href="http://d3js.org">D3</a> to provide a fast and easy, web-based solution to discovering potentially interesting downstream effects of regulatory and/or co-expressed molecules. The diagrams are robust, interactive, and packaged as highly-portable HTML files that eliminate the need for third-party software to view.</p>
+
+<p>To cite Director, please use <a href="https://github.com/kzouchka/Director">Icay, K.; Liu, C.; Hautaniemi, S. (2016). Director: an R package for dynamic, browser-enabled visualization of multi-level regulatory interactions. https://github.com/kzouchka/Director</a></p>
+
+<h3>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h3>
+
+<p>Install Director from its <a href="https://github.com/kzouchka/Director">GitHub repository</a>. In R, you first need to
+install <a href="https://github.com/hadley/devtools">devtools</a>.</p>
+
+<div class="highlight highlight-source-r"><pre>install.packages(<span class="pl-s"><span class="pl-pds">"</span>devtools<span class="pl-pds">"</span></span>)`</pre></div>
+
+<p>Then using the 'install_github' function in the <a href="https://github.com/hadley/devtools">devtools</a> package:</p>
+
+<div class="highlight highlight-source-r"><pre>library(<span class="pl-smi">devtools</span>)
+install_github(<span class="pl-s"><span class="pl-pds">"</span>kzouchka/Director<span class="pl-pds">"</span></span>)</pre></div>
+
+<h4>
+<a id="example-use" class="anchor" href="#example-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example use</h4>
+
+<p>The following test case draws a set of regulating miRNAs and their target genes in key biological pathways using default package settings.</p>
+
+<div class="highlight highlight-source-r"><pre>library(<span class="pl-smi">Director</span>)
+data(<span class="pl-smi">ovca</span>) <span class="pl-c"># import data</span>
+initSankey() <span class="pl-c"># same as initSankey(directory=getwd())</span>
+<span class="pl-smi">Level1</span> <span class="pl-k">&lt;-</span> createList(<span class="pl-smi">ovca</span><span class="pl-k">$</span><span class="pl-smi">Level1</span>) <span class="pl-c"># miRNA-gene data</span>
+<span class="pl-smi">Level2</span> <span class="pl-k">&lt;-</span> createList(<span class="pl-smi">ovca</span><span class="pl-k">$</span><span class="pl-smi">Level2</span>) <span class="pl-c"># gene-pathway data.</span>
+<span class="pl-smi">List</span> <span class="pl-k">&lt;-</span> append2List(<span class="pl-smi">Level1</span>, <span class="pl-smi">Level2</span>) <span class="pl-c"># append lists.</span>
+
+<span class="pl-smi">Sankey</span> <span class="pl-k">&lt;-</span> makeSankey(<span class="pl-smi">List</span>, <span class="pl-v">averagePath</span> <span class="pl-k">=</span> <span class="pl-c1">TRUE</span>) <span class="pl-c"># calculate colour values</span>
+drawSankey(<span class="pl-smi">Sankey</span>,<span class="pl-v">caption</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Regulatory pathway<span class="pl-pds">"</span></span>,
+<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">1400</span>, <span class="pl-v">height</span><span class="pl-k">=</span><span class="pl-c1">900</span>)
+writeSankey(<span class="pl-v">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>FDRpathways<span class="pl-pds">"</span></span>) <span class="pl-c"># write to working directory as ’FDRpathways.html’</span></pre></div>
+
+<h3>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h3>
+
+<p>Director as a whole is distributed under <a href="http://www.gnu.org/licenses/gpl-3.0.en.html">GPL-3 (GNU GENERAL PUBLIC LICENSE version 3)</a>.</p>
+
+<p>The package incorporates</p>
+
+<ul>
+<li>
+<a href="http://rcharts.io">rCharts</a> [<a href="https://github.com/kzouchka/Director/blob/master/LICENSE">license</a>]</li>
+<li>
+<a href="http://d3js.org">D3.js</a> [<a href="https://github.com/kzouchka/Director/blob/master/LICENSE">license</a>]</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/kzouchka">kzouchka</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
