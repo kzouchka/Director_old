@@ -31,9 +31,11 @@
         <h3>
 <a id="summary" class="anchor" href="#summary" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Summary</h3>
 
-<p>As datasets from high-throughput technology grow increasingly complex, novel approaches are needed to visually convey key findings on multiple, related-levels of data quickly and effectively. Director is an <a href="http://www.r-project.org/">R</a> package designed to streamline the visualization of molecular effect in a biological network. It utilizes a modified Sankey plugin of the JavaScript library <a href="http://d3js.org">D3</a> to provide a fast and easy, web-based solution to discovering potentially interesting downstream effects of regulatory and/or co-expressed molecules. The diagrams are robust, interactive, and packaged as highly-portable HTML files that eliminate the need for third-party software to view.</p>
+<p>As datasets from high-throughput technology grow increasingly complex, novel approaches are needed to visually convey key findings on multiple, related-levels of data quickly and effectively. Director is an <a href="http://www.r-project.org/">R</a> package designed to streamline the visualization of molecular effect in a biological network. It utilizes a customized Sankey plugin of the JavaScript library <a href="http://d3js.org">D3</a> to provide a fast and easy, browser-enabled solution to discovering potentially interesting molecular interactions that would not otherwise be evident using standard network visualization or statistical methods alone. The diagrams are robust, interactive, and packaged as highly-portable HTML files that eliminate the need for third-party software to view.</p>
 
 <p>Read more with a basic walkthrough in the <a href="https://github.com/kzouchka/Director/blob/master/inst/doc/vignette.pdf">package vignette</a>.</p>
+
+<p><img src="https://raw.githubusercontent.com/kzouchka/Director/master/vignettes/figure4.png" alt="Example diagram from vignette"></p>
 
 <h3>
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
@@ -56,8 +58,8 @@ install_github(<span class="pl-s"><span class="pl-pds">"</span>kzouchka/Director
 <div class="highlight highlight-source-r"><pre>library(<span class="pl-smi">Director</span>)
 data(<span class="pl-smi">ovca</span>) <span class="pl-c"># import data</span>
 initSankey() <span class="pl-c"># same as initSankey(directory=getwd())</span>
-<span class="pl-smi">Level1</span> <span class="pl-k">&lt;-</span> createList(<span class="pl-smi">ovca</span><span class="pl-k">$</span><span class="pl-smi">Level1</span>) <span class="pl-c"># miRNA-gene data</span>
-<span class="pl-smi">Level2</span> <span class="pl-k">&lt;-</span> createList(<span class="pl-smi">ovca</span><span class="pl-k">$</span><span class="pl-smi">Level2</span>) <span class="pl-c"># gene-pathway data.</span>
+<span class="pl-smi">Level1</span> <span class="pl-k">&lt;-</span> createList(<span class="pl-smi">poorprog</span><span class="pl-k">$</span><span class="pl-smi">Level1</span>) <span class="pl-c"># miRNA-gene data</span>
+<span class="pl-smi">Level2</span> <span class="pl-k">&lt;-</span> createList(<span class="pl-smi">poorprog</span><span class="pl-k">$</span><span class="pl-smi">Level2</span>) <span class="pl-c"># gene-pathway data.</span>
 <span class="pl-smi">List</span> <span class="pl-k">&lt;-</span> append2List(<span class="pl-smi">Level1</span>, <span class="pl-smi">Level2</span>) <span class="pl-c"># append lists.</span>
 
 <span class="pl-smi">Sankey</span> <span class="pl-k">&lt;-</span> makeSankey(<span class="pl-smi">List</span>, <span class="pl-v">averagePath</span> <span class="pl-k">=</span> <span class="pl-c1">TRUE</span>) <span class="pl-c"># calculate colour values</span>
@@ -82,7 +84,8 @@ writeSankey(<span class="pl-v">name</span><span class="pl-k">=</span><span class
 <h3>
 <a id="citing" class="anchor" href="#citing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Citing</h3>
 
-<p>To cite Director, please use [Icay, K.; Liu, C.; Hautaniemi, S. (2016). Director: an R package for dynamic, browser-enabled visualization of multi-level regulatory interactions. <a href="http://kzouchka.github.io/Director">http://kzouchka.github.io/Director</a></p>
+<p>To cite Director, please use [Icay, K.; Liu, C.; Hautaniemi, S. (2016). Director: dynamic visualization tool of multi-level
+data. <a href="http://kzouchka.github.io/Director">http://kzouchka.github.io/Director</a></p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/kzouchka">kzouchka</a></p>
