@@ -23,33 +23,24 @@
 
 \begin{blockquote}
 \begin{center}\textbf{Abstract}\end{center}
-\noindent \textit{Director} is an R package designed to streamline the visualization of multiple levels of interacting RNA-seq data. It utilizes a modified Sankey plugin of the JavaScript library D3 to provide a fast and easy, web-based solution to discovering potentially interesting downstream effects of regulatory and/or co-expressed molecules.  The diagrams are dynamic, interactive, and packaged as HTML files -- making them highly portable and eliminating the need for third-party software. This enables a straightforward approach for scientists to interpret the data produced, and bioinformatics developers an alternative means to present relevant data.
-
-% WHY SANKEY?
-% Visual-based data mining solution to represent associated/related multi-level data. Easy to understand and in it's "see to believe" design. Straightforward incorporation of (clinical) data (by filtering subsets). Presentable and approachable. Does not try to present a method but rather IMPROVE INTERPRETATION. Fresh/alternative look/perspective of regulatory effects.
-
-% A picture is worth a thousand words. Visualization of RNA-seq data must therefore derive value from several million reads worth of information.  According to Wikipedia, "Sankey diagrams are typically used to visualize energy or material or cost transfers between processes. .. They are helpful in locating dominating contributions to an overall flow." Historically used to represent energy efficiency. In biomedical research, accurately identifiying significant biomarkers is a huge goal. Furthermore, the role of miRNAs in disease development and progression is largely measured by the ability to dampen target gene expression. Though the precise mechanisms in which miRNA-target interactions are still poorly understood, there are clear structural and thermodynamic features.
-
-% Gene expression fold-change and relationship scores of interacting molecules are input to create dynamic HTML figures representing a directional, regulatory cascade.
-% Regulatory cascades provide valuable insight into potential therapeutic and diagnositc biomarkers.
-%A majority of tools and algorithms are devoted to accurately identifying functionally interesting RNA features. Effective presentation of such data so that its value is understandable, however, is an overlooked and underappreciated challenge.
-
-%Data visualization remains a key factor in interpreting significant findings. Very good visualization makes data approachable and interpretable to a wider audience, revealing and highlighting valuable insights not otherwise apparent in numerical data. Effective visualization provide a guide for future scientific research. In multi-omics RNA-seq data, it provides a means to integrate results into a 'bigger picture' level of understanding while removing the complexity associated with differences in data structures.
-
+\noindent \textit{Director} is an R package designed to streamline the visualization of multiple levels of interacting RNA-seq data.  It utilizes a modified Sankey plugin of the JavaScript library D3 to provide a fast and easy, web-based solution to discovering potentially interesting downstream effects of regulatory and/or co-expressed molecules. The diagrams are dynamic, interactive, and packaged as HTML files -- making them highly portable and eliminating the need for third-party software. This enables a straightforward approach for scientists to interpret the data produced, and bioinformatics developers an alternative means to present relevant data.
 \end{blockquote}
 
 \tableofcontents
 
 \section{Sankey diagram}
     \subsection{What is it?}
-Sankey diagrams are types of flow diagrams for path analytics, where paths represent a distinct sequence of events. They are particularly useful for ientifying the contributions of these events in a directional cascade. This package applies Sankey diagrams to represent the effect of specific molecules in a regulatory cascade.
+Sankey diagrams are types of flow diagrams comprised of paths and nodes designed to represent flow measurements within a system of distinct events. They are particularly useful for identifying the contributions of these events in a directional cascade, with larger downstream contributions emphasized by making path widths proportional to input values. This package takes advantage of this feature to visualize multiple levels of interacting molecules in a directional flow; offering novel presentation of key findings from complex datasets and dynamic, visual analysis of downstream regulatory effects. 
 
-Dynamic visualization of data is achieved with the Sankey plugin of Mike Bostock's JavaScript library, \href{http://d3js.org/}{D3}, modified with user-defined parameters to incorporate \textit{two} (versus the traditional one) set of quantitative values. \textit{Director} thus makes it possible to assign specific colours to paths and to nodes, and to customize the look of the diagrams produced.
+Dynamic visualization of data is achieved with the Sankey plugin of Mike Bostock's JavaScript library, \href{http://d3js.org/}{D3}. Compared to traditional Sankey diagrams, this package provides novel drawing capabilities to better depict molecular interactions. By enabling input for both path and node values, colours are meaningfully assigned according to a gradient scale rather than being assigned randomly or uniformly. Furthermore, in molecular biology, both positive and negative measurement values are of interest and thus both extremes are scaled for when drawing path widths.
 
     \subsection{Limitations}
-Sankey diagrams are strictly directional flow diagrams and are not suitable for depicting feedback loops (i.e. a path from one node that leads back to itself).
+Sankey diagrams are strictly directional flow diagrams and are not suitable for depicting feedback loops (i.e. a path from one node that leads back to itself). Order of input is also important: \textit{all} upstream connections must precede downstream connections to successfully draw the diagram. For example, a list must contain all miRNA-mRNA pairs first, mRNA-gene pairs second.
+
+As with all data-driven diagrams, large datasets can be difficult or impossible to visualize and still be able to distinguish individual nodes and paths. While this package does not restrict the amount of paths and nodes defined, it will warn users that the diagram may not be rendered correctly. In most cases, this means less connected paths and nodes may be too small to be rendered at all. In this situation, users have two options: (1) filter the data manually or using the quantitative and qualitative filters of the package, and/or (2) manually define the diagram height and width to be large enough to render all nodes and paths. Instructions on how to perform these actions are described below. 
+
     \subsection{Diagram features}
-The advantage of an HTML output is that it encourages user interaction with the data. Quantitative and qualitative descriptions about each node and path are easily referenced with mouseover. Nodes are dynamic and can be moved around the space for optimal presentation. Furthermore, entire pathways can be highlighted in the overall diagram by clicking on the node (or nodes) of interest.
+One advantage of an HTML output is that it encourages user interaction with the data. Quantitative and qualitative information about each node and path are easily referenced with mouseover. Nodes are dynamic and can be moved around the space for optimal presentation. Furthermore, entire pathways can be highlighted in the overall diagram by clicking on the node (or nodes) of interest.
 
 \begin{figure}[htbp]
     \begin{center}
@@ -60,7 +51,7 @@ The advantage of an HTML output is that it encourages user interaction with the 
 
 \section{Standard workflow}
     \subsection{Getting started}
-First, a working directory must be specified and initialized with $initSankey$. This writes the necessary scripts enabling dynamic HTML and specifies the basic look of the figures. Specifically, the D3 JavaScript library (currently, version 3.5.6) and Mike Bostock's D3 plugin for Sankey. The function requires no inputs but optional parameters can be used to define an absolute path (default is the working directory obtained from $getwd()$), alternate download links to necessary scripts and download methods, path opacity, font, and font sizes.
+First, a working directory must be specified and initialized with $initSankey$. This writes the necessary scripts enabling dynamic HTML and specifies the basic look of the figures. Specifically, the D3 JavaScript library (currently, version 3.5.6) and Mike Bostock's D3 plugin for Sankey. The function requires no inputs but optional parameters can be used to define an absolute path (default is the working directory obtained from $getwd()$), alternate download links to necessary scripts and download methods, path opacity, font, and font sizes of node labels.
 
 Running $initSankey$ in the working directory produces the following files and folders:
 \dirtree{%
@@ -77,15 +68,15 @@ Running $initSankey$ in the working directory produces the following files and f
 .2 config.yml.
 }
 
-These files are necessary for functions $makeSankey$ and $drawSankey$ to work so it must always be executed first. The parameters defined in $initSankey$ will apply to all HTML files written to the specified directory. Rerunning this function with different configurations will, therefore, affect the look of all HTML files within the directory (see section~\ref{sec:figMods} and Figure~\ref{fig:Custom}).
+These files are necessary for functions $makeSankey$ and $drawSankey$ to work so it must always be executed first. The parameters defined in $initSankey$ will apply to all HTML files written to the specified directory. Rerunning this function with different parameters will, therefore, alter the look of all HTML files within the directory (see section~\ref{sec:figMods} and Figure~\ref{fig:Custom}).
 
     \subsection{Input data}
-\textit{Director} requires two types of quantitive information as input: values for \textit{nodes} and values for \textit{paths}. The package assumes nodes are molecules of interest and that the quantitative value is the feature which makes them interesting, e.g. expression fold-change, significance value, or methylation score. Similarly, paths represent a predictive or quantitative measure of the interaction between molecules (e.g. correlation, target prediction score).
+\textit{Director} requires two types of quantitive information as input: values for \textit{nodes} and values for \textit{paths}. The package assumes nodes are molecules of interest and that the quantitative value is the feature which makes them interesting, e.g. expression fold-change, significance value, or methylation score. Similarly, paths represent a predictive or quantitative measure of the interaction between molecules (e.g. correlation, affinity score).
 
 Node and path values can be input in two ways.
     \begin{enumerate}
-        \item As a single table with each row defining a source node, target node, relationship value, node values, and (optional) additional information.
-        \item As two separate tables: one with each row defining a source node, target node, relationship value, and (optional) additional values; and another with two columns defining all nodes and corresponding node values.
+        \item As a single table with each row defining a source node, target node, relationship value, node values, and (optional) descriptive information.
+        \item As two separate tables: one with each row defining a source node, target node, relationship value, and (optional) descriptive values; and another with two columns defining all nodes and corresponding node values.
     \end{enumerate}
 
 \noindent Suppose we have the following information:\\
@@ -138,7 +129,7 @@ ListFC <- data.frame(genes=c("DrugX", "miR-B", "miR-A", "transc1",
 tempList2 <- createList(List,ListFC)
 @
 
-\noindent Note that \textit{description} is a required column to make and draw a Sankey diagram, but column content is optional and will be empty if not specified. It can be used, for example, to provide the gene name of a target transcript or additional information about the source and target interaction. Descriptions are accessed via mouseover of the respective paths.
+\noindent Note that \textit{description} is a required column to make and draw a Sankey diagram. If it is not defined in $createList$, an empty \textit{description} column will be created. This column can be used, for example, to provide the gene name of a target transcript or additional information about the source and target interaction. Descriptive information can be written in HTML code and are accessed via mouseover of the respective paths.
 
 \section{Data filtering}
 \textit{Director} has several functions that attempt to streamline the visualization process. For useful and efficient visualization, data should first be filtered for the most valuable, user-defined set of information.
@@ -155,10 +146,10 @@ Basic functions are provided with \textit{Director} to filter the list of source
 \noindent Multiple lists can be created representing different levels of source-target relationships and combined with $append2List$. The package then visually organizes downstream effects to several biologically functional levels. See the package manual for more details and examples for each function.
 
 \section{Visual parameters}
-After filtering, the ready list is input to $makeSankey$. This function calculates and assigns drawing values for nodes, assigns colours to nodes and colours to paths. $drawSankey$ then takes these values to create the HTML containing the interactive Sankey diagram. These HTML files can then be saved to the working directory with $writeSankey$, where the supporting files generated with $initSankey$ are already saved.
+After filtering, the ready list is input to $makeSankey$. This function calculates and assigns drawing values for nodes, assigns colours to nodes, and assigns colours to paths. A red-blue palette is used by default to render diagrams, but colour ranges for both nodes and paths can be defined separately. $drawSankey$ then takes these values to create the HTML containing the interactive Sankey diagram. These HTML files can then be saved to the working directory with $writeSankey$, where the supporting files generated with $initSankey$ are already saved.
 
 \subsection{Nodes and paths}
-The primary function of the package is to make a custom Sankey diagram that takes in additional source and target values (\textit{sourcefc} and \textit{targetfc}, respectively) on top of the traditional \textit{source, target, value} to label nodes and determine path widths. These additional source and target values enable colouring of the nodes to quantitative measures.
+The primary function of the package is to render a custom Sankey diagram with paths and nodes assigned colours based on quantitative measures.
 
 \begin{figure}[htbp]
     \begin{center}
@@ -174,7 +165,7 @@ sankey <- makeSankey(tempList2)
 drawSankey(sankey)
 @
 
-By default, the nodes and paths are coloured using a blue-red palette. However, users can individually define the node and the path colour scales in the function, as well as the 'zero' or \textit{nought} value of the colour scales. This is useful when highlighting smaller versus larger values (e.g. p-values), and customizing the colours used in the figure to match a theme. Furthermore, both names and hex codes can be input as colour values.
+By default, this package assumes larger absolute values are stronger than smaller values. However, some values (e.g. significance levels)  are stronger with smaller values and weaker with larger ones. In these cases, \textit{nought} or zero values can be defined for either paths or nodes such that stronger colors are given to smaller values and weaker colors to larger values. This makes the diagram robust to a wide range of data input and able to match almost any colour theme. Furthermore, both names and hexidecimal codes can be input as colour values.
 
     \subsubsection{\textit{averagePath} parameter}
 What if there is no unique path values after the first level of interacting nodes? What if interest is only in the downstream effect of the first level of interactions (e.g. drugs and their molecular targets)? $makeSankey$ has a Boolean parameter called \textit{averagePath} that, when set to $TRUE$, will replace the \textit{List\$value} of a source-target pair of molecules (say, miRNA-1 and target Gene A) with an average value of the incoming paths to the source molecule (say, Drug X and Drug Y targeting miRNA-1). Assuming a uniform downstream effect, this colours downstream paths in the figure based on the average effect of the initial level of source-target values. Consequently, this gives more emphasis to the quantitative node values.
@@ -203,7 +194,7 @@ cbind(sankey2$reference[,c("source", "target","averagePath_value")],truevalue)
 @
 
     \subsection{Figure dimensions and properties}
-Each figure includes a legend containing the colour scales for node values and for path values. $drawSankey$ parameters allow customization of the legend font, font size, legend text, and figure caption.
+Each figure includes a legend containing the colour scales for node values and for path values. $drawSankey$ parameters allow customization of the legend font, font size, legend content, and figure caption.
 
 By default, figures are drawn with a 1000px width and height adjusted to the number of nodes/unique molecules up to 1800px (or approximately 300 nodes). If the figure fails to appear in the HTML file with $drawSankey$ defaults, the options are either to
 \begin{enumerate}
@@ -211,7 +202,7 @@ By default, figures are drawn with a 1000px width and height adjusted to the num
     \item Use \textit{Director} filters to reduce the number of nodes to draw.
 \end{enumerate}
 
-The goal of this package is to highlight key molecules and regulatory interactions in a select pathway. Having more molecules than necessary makes the figure 'noisy'.
+The goal of this package is to highlight key molecules and regulatory interactions. Having more molecules than necessary makes the figure 'noisy'.
 
 Fortunately, users can view quantitative and qualitative information, including optional descriptions, directly from nodes and paths in the diagram via mouseover. This is useful to determine, for example, what quantitative thresholds to filter for to remove uninteresting paths from the figure.
 
@@ -254,15 +245,5 @@ The former is a standard R data frame and can be saved with normal methods, e.g.
 
 The latter can be saved to file using the function $writeSankey$. HTML has the dual benefit of preserving information dynamics of the diagram and vector graphics quality. As a result, adjusting the flow of the diagram and saving as a high-quality PDF (or .png) in any dimension is simple.
 
-
-%Now we look at a summary of the famous \texttt{iris} data set, and we
-%want to see the commands in the code chunks:
-
-%\SweaveOpts{echo=true}
-
-%<<>>=
-%data(iris)
-%summary(iris)
-%@ %def
 
 \end{document}

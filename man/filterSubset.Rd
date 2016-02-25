@@ -36,7 +36,8 @@ tempList <- createList(data.frame(source=c("A","B","C"),
     value=runif(3,-1,1),
     sourcefc=runif(3,-2,2),
     targetfc=runif(3,-2,2)))
-filterSubset(tempList,source="source", target="description", sourceSubset="C", targetSubset="consonant")
+filterSubset(tempList,source="source", target="description", 
+sourceSubset="C", targetSubset="consonant")
 filterSubset(tempList,target="description", targetSubset="consonant")
 filterSubset(tempList,target="description", targetSubset="consonant", invert=TRUE)
 }

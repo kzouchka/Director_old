@@ -1,29 +1,32 @@
 Package: Director
-Title: Visualization of related, multi-level RNA-seq data in a dynamic
-        Sankey diagram
-Version: 0.99.2
+Title: A dynamic visualization tool of multi-level data
+Version: 0.99.3
 Author: Katherine Icay [aut, cre]
 Maintainer: Katherine Icay <katherine.icay@helsinki.fi>
-Description: Visualize relationships in multi-level RNA-seq data (e.g. miRNA
-    and target mRNA expression) as dynamic diagrams embedded in an HTML file.
-    Specifically, produce Sankey diagrams (http://bost.ocks.org/mike/sankey/)
-    representing relationships between pairs of interacting molecules as directed
-    paths between two nodes. Paths and nodes are coloured based on a quantitative
-    value representing relationship strength (e.g. correlation or regulatory score)
-    and molecular change (e.g. expression fold change between two conditions).
-    Colours used for paths and nodes can be defined by the user to indicate positive
-    and negative interaction. This package utilizes the Sankey plugin of the data-
-    driven JavaScript library D3 (Copyright 2015 Mike Bostock) to present data
-    in all modern browsers, eliminating the need for third-party visualization
-    software.
+Description: Director is an R package designed to streamline the visualization
+    of molecular effects in regulatory cascades. It utilizes a modified Sankey
+    plugin of the JavaScript library D3 to provide a fast and easy, browser-
+    enabled solution to discovering potentially interesting downstream effects
+    of regulatory and/or co-expressed molecules. The diagrams are robust,
+    interactive, and packaged as highly-portable HTML files that eliminate
+    the need for third-party software to view. This enables a straightforward
+    approach for scientists to interpret the data produced, and bioinformatics
+    developers an alternative means to present relevant data. We demonstrate
+    its utility with an ovarian cancer dataset containing matched microRNA
+    and mRNA expression data.
 URL: https://github.com/kzouchka/Director
 BugReports: https://github.com/kzouchka/Director/issues
-Depends: R (>= 3.2.1)
-License: GPL-3
+Depends:
+    R (>= 3.2.1)
+License: GPL-3 + file LICENSE
 biocViews: Visualization
 LazyData: true
-Imports: devtools, rCharts, utils, grDevices
+Imports:
+    devtools,
+    rCharts,
+    utils,
+    grDevices
 Remotes: ramnathv/rCharts
-RoxygenNote: 5.0.1.9000
+RoxygenNote: 5.0.1
 NeedsCompilation: no
 Packaged: 2015-12-23 11:42:14 UTC; icay

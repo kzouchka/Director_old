@@ -1,4 +1,4 @@
-                                                                                                                                                                                # Create global variables
+# Director R package for creating directed regulatory cascades.
 pkg.env <- new.env()
 pkg.env$absoluteDirectory <- getwd()
 pkg.env$localDirectory <- "."
@@ -7,7 +7,7 @@ pkg.env$nodMin <- "blue"
 pkg.env$nodeMax <- "red"
 pkg.env$pathMin <- "blue"
 pkg.env$pathMax <- "red"
-pkg.env$noughtColor <- "white"
+pkg.env$noughtColor <- "#f5f5f0"
 pkg.env$nought <- 0
 #' initSankey
 #'
@@ -282,10 +282,10 @@ node.append("text")
     var stroke_opacity = 0;
     if( d3.select(this).attr("data-clicked") == "1" ){
         d3.select(this).attr("data-clicked","0");
-        stroke_opacity = 0.2;
+        stroke_opacity = ', pathOpacity, ';
     }else{
         d3.select(this).attr("data-clicked","1");
-        stroke_opacity = 0.5;
+        stroke_opacity = ', pathHover, ';
     }
 
     var traverse = [{
@@ -409,13 +409,13 @@ append2List <- function(List, appendList, description="description", sourcefc="s
     if (appendMatch) { # FILTER and remove rows in List that contain targets without a corresponding source in appendList
         transcriptsToRemove <- c()
         for (t in 1:nrow(List)) {
-            if (length(grep(List[t,target],appendList[,source])) == 0) {
+            if (length(grep(paste("^", List[t,target],"$",sep=""),appendList[,source])) == 0) {
                 transcriptsToRemove <- c(transcriptsToRemove, t)
             }
         }
         transcriptsToRemove2 <- c()
         for (t in 1:nrow(appendList)) {
-            if (length(grep(appendList[,source][t],List[,target])) == 0) {
+            if (length(grep(paste("^",appendList[,source][t], "$",sep=""),List[,target])) == 0) {
                 transcriptsToRemove2 <- c(transcriptsToRemove2,t)
             }
         }
@@ -427,21 +427,7 @@ append2List <- function(List, appendList, description="description", sourcefc="s
             appendList <- appendList[-transcriptsToRemove2,]
         }
     }
-    
-    # Round source and target values to the same decimal place using this function
-    decimalplaces <- function(x) {
-        if ((x %% 1) != 0) {
-            nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed=TRUE)[[1]][[2]])
-        } else {
-            return(0)
-        }
-    }
-    # Integer value for decimal places
-    decimals <- round(mean(unlist(lapply(List[,sourcefc], decimalplaces))),0)
-    List[,c(sourcefc,targetfc)] <- round(List[,c(sourcefc,targetfc)], decimals)
-    appendList[,c(sourcefc,targetfc)] <- round(appendList[,c(sourcefc,targetfc)], decimals)
-
-    return(rbind(List,appendList))
+        return(rbind(List,appendList))
 }
 
 #' createList
@@ -470,9 +456,11 @@ append2List <- function(List, appendList, description="description", sourcefc="s
 #'     targetValue=nodevals[c(3,4,5,5)])
 #' tempFC <- data.frame(genes=c("A","B","C","D","E"), foldChange=runif(5,-2,2))
 #' # inputList only
-#' createList(tempList, description="addedInfo", value="relationValue", sourcefc="sourceValue", targetfc="targetValue")
+#' createList(tempList, description="addedInfo", value="relationValue", 
+#' sourcefc="sourceValue", targetfc="targetValue")
 #' # inputList and inputFC
-#' createList(tempList, tempFC, value="relationValue",sourcefc="sourceValue",targetfc="targetValue")
+#' createList(tempList, tempFC, value="relationValue",sourcefc="sourceValue",
+#' targetfc="targetValue")
 createList <- function(inputList, inputFC=NULL, node="genes", fc="foldChange", source="source", target="target",description="description",value="value", sourcefc="sourcefc", targetfc="targetfc") {
     if (is.null(dim(inputList))) {
         stop("inputList is not a data frame or table.")
@@ -575,14 +563,11 @@ createList <- function(inputList, inputFC=NULL, node="genes", fc="foldChange", s
 #' @keywords draw sankey
 #' @export
 #' @examples
-#' tempList <- createList(data.frame(source=c("A","B","C"),
-#'     target=c("D","E","G"),
-#'     description=c("consonant","vowel","consonant"),
-#'     value=runif(3,-1,1),
-#'     sourcefc=runif(3,-2,2),
-#'     targetfc=runif(3,-2,2)))
+#' Level1 <- createList(poorprog$Level1)
+#' Level2 <- createList(poorprog$Level2)
+#' tempList <- append2List(Level1,Level2)
 #' initSankey()
-#' tempList2 <- makeSankey(tempList)
+#' tempList2 <- makeSankey(tempList, averagePath=TRUE)
 #' drawSankey(tempList2)
 
 drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12, width=1000, caption="Sankey figure", nodeValue="Log2 fold-change", pathValue="Correlation coefficient") {
@@ -609,6 +594,7 @@ drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12
     }
 
     # Do legend colour range span nought?
+    corrBar <- ""; FCbar <- ""
     if ((max(trueVals) < pkg.env$nought && min(trueVals) < pkg.env$nought) ||(max(trueVals) > pkg.env$nought && min(trueVals) > pkg.env$nought)) {
         corrBar <- "');
         grd.addColorStop(1, '"
@@ -841,7 +827,8 @@ filterNumeric <- function(List, column, min=NULL,max=NULL, absolute=NULL) {
 #'     value=runif(3,-1,1),
 #'     sourcefc=runif(3,-2,2),
 #'     targetfc=runif(3,-2,2)))
-#' filterSubset(tempList,source="source", target="description", sourceSubset="C", targetSubset="consonant")
+#' filterSubset(tempList,source="source", target="description", 
+#' sourceSubset="C", targetSubset="consonant")
 #' filterSubset(tempList,target="description", targetSubset="consonant")
 #' filterSubset(tempList,target="description", targetSubset="consonant", invert=TRUE)
 
@@ -887,6 +874,8 @@ filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE
 #' @param pathMax Colour assigned to maximum path value.
 #' @param nought 'Zero' value dividing node and paths into two distinct sets. i.e. positive and negative.
 #' @param noughtColor Colour assigned to nought value.
+#' @param noughtPath Optional parameter that sets a different 'zero' value for paths than for nodes.
+#' @param noughtPathColor Optional parameter that assigns a different colour to the path 'zero' value from the node 'zero' value. 
 #' @keywords sankey
 #' @export
 #' @examples
@@ -899,7 +888,7 @@ filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE
 #' initSankey()
 #' tempList2 <- makeSankey(tempList)
 
-makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", pathMin="blue", pathMax="red", noughtColor="white", nought=0) {
+makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", pathMin="blue", pathMax="red", noughtColor="#f5f5f0", nought=0, noughtPath=NULL, noughtPathColor=NULL) {
     edgelist <- List
     edgelist_avg <- List
     edgelist_avg$value <- round(edgelist_avg$value,3)
@@ -923,7 +912,7 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
     failNodes <- c()
     if (sum(duplicated(c(edgelist[,"source"],edgelist[,"target"]))) > 0) {
         for (row in 1:nrow(edgelist)) {
-        dupli <- grep(edgelist[row,"source"],edgelist[,"target"])
+        dupli <- grep(paste("^",edgelist[row,"source"],"$",sep=""),sprintf("%s",edgelist[,"target"]))
         if (length(dupli) > 0) { # Check sourcefc and targetfc is the same for the node.
             if (length(unique(c(edgelist[row,"sourcefc"],edgelist[dupli,"targetfc"]))) > 1) {
                 failCheck <- TRUE
@@ -933,26 +922,35 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
     }
     }
     if (failCheck) {
-        stop(paste("Different sourcefc and targetfc values found for: ", paste(failNodes, collapse=", "), ". Please verify values.", sep=""))
+        stop(paste("Different sourcefc and targetfc values found for nodes: ", paste(failNodes, collapse=", "), ". Please verify values.", sep=""))
     }
 
         # Sum TOTAL value for a target that is also a source. This sets path widths.
         edgelist$value <- abs(edgelist$value)
         for (t in 1:length(unique(edgelist$target))) {
-            found <- which(as.character(edgelist$source) == unique(as.character(edgelist$target))[t])
+             found <- grep(paste("^",unique(edgelist$target)[t],"$",sep=""), as.character(edgelist$source))
             if (length(found) > 0) {
                 summedTarget <- sum(round(edgelist[grep(paste("^",unique(edgelist$target)[t], "$", sep=""), edgelist$target),"value"],3))
-                summedSource <- sum(round(edgelist[grep(paste("^",unique(edgelist$target)[t], "$", sep=""), edgelist$source),"value"],3))
+                sources <- round(edgelist[grep(paste("^", unique(edgelist$target)[t], "$", sep=""), edgelist$source),"value"],3)
+                if (sum(!is.na(sources)) > 0) { # if values are given for intermediary nodes, use them!
+                    summedSource <- sum(sources)
                     adjustmentVals <- round(edgelist$value[found]/summedSource,3) # proportional values
+                } else { # NA value given for intermediary nodes.
+                    adjustmentVals <- round(1/length(sources),3)
+                }
                     summed <- summedTarget*adjustmentVals
                     edgelist$value[found] <- summed
+            } else { # End target. NA value must then be equal to sum of last connections of source as target.
+                 summedTarget <- sum(round(edgelist[grep(paste("^",unique(edgelist$target)[t], "$", sep=""), edgelist$target),"value"],3))
+                sources <- round(edgelist[grep(paste("^", unique(edgelist$target)[t], "$", sep=""), edgelist$source),"value"],3)
+                
             }
         }
         edgelist$value <- round(edgelist$value, 3)
 
     if (averagePath) { # Sum AVERAGE value for a target that is also a source. This resets path value.
         for (t in 1:length(unique(edgelist_avg$target))) {
-            found <- which(as.character(edgelist_avg$source) == unique(as.character(edgelist_avg$target))[t])
+            found <- grep(paste("^",unique(edgelist_avg$target)[t],"$",sep=""), edgelist_avg$source)
             if (length(found) > 0) {
                 edgelist_avg$value[found] <- mean(edgelist_avg[grep(unique(edgelist_avg$target)[t],edgelist_avg$target),"value"])
             }
@@ -960,24 +958,30 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
         truevalue <- edgelist_avg$value
     }
 
+    if (sum(is.na(truevalue)) > 0) {
+        stop(paste("NAs found in List values. Correct or set averagePath=TRUE to calculate values from incoming paths. Rows: ", paste(which(is.na(truevalue)), collapse=", "), sep=""))
+    }
+
     # Assign colour scale according to fold change values
-    FCrange <- unique(c(edgelist$sourcefc,edgelist$targetfc))
+    FCrange <- as.numeric(unique(c(edgelist$sourcefc,edgelist$targetfc)))
     minFC <- min(FCrange)
     maxFC <- max(FCrange)
     FCrange_colours <- c()
 
     # Create color scales
     nodeMinCols <- colorRampPalette(c(nodeMin, noughtColor))
-    nodeMins <- nodeMinCols(length(which(FCrange < nought))+1)
+    nodeMins <- rev(nodeMinCols(length(which(FCrange < nought))+1)) # Revert order
     nodeMaxCols <- colorRampPalette(c(noughtColor, nodeMax))
     nodeMaxs <- nodeMaxCols(length(which(FCrange >= nought))+1)
 
     # Use color scales
     for (fc in FCrange) {
         if (fc < nought) { # nodeMin farther from 0. Black closer to 0.
-            FCrange_colours <- c(FCrange_colours, nodeMins[grep(paste("^",fc,"$",sep=""),sort(FCrange[which(FCrange < nought)]))])
+               # assign colours proportional to distance between nought and minFC
+               FCrange_colours <- c(FCrange_colours, nodeMins[min(max(round((nought-fc)/(nought-minFC)*length(nodeMins)),1),length(nodeMins))])
         } else { # nodeMax farther from 0, Black closer to 0.
-            FCrange_colours <- c(FCrange_colours, nodeMaxs[grep(paste("^",fc,"$",sep=""),sort(FCrange[which(FCrange >= nought)]))+1])
+               # assign colours proportional to distance between nought and maxFC
+               FCrange_colours <- c(FCrange_colours, nodeMaxs[min(max(round((fc-nought)/(maxFC-nought)*length(nodeMaxs)),1),length(nodeMaxs))])
         }
     }
 
@@ -998,21 +1002,29 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
     }
 
     # Assign colour values to edgelist according to edgelist_avg correlation value
+    truevalue <- round(truevalue,3)
     COrange <- truevalue[which(!duplicated(truevalue))]
+
+    if (is.null(noughtPath)) { noughtPath <- nought }
+    if (is.null(noughtPathColor)) {noughtPathColor <- noughtColor }
 
     maxCo <- max(COrange)
     COrange_colours <- c()
-    pathMinCols <- colorRampPalette(c(pathMin, noughtColor))
-    pathMins <- pathMinCols(length(which(COrange < nought))+1)
-    pathMaxCols <- colorRampPalette(c(noughtColor, pathMax))
-    pathMaxs <- pathMaxCols(length(which(COrange >= nought))+1)
+    pathMinCols <- colorRampPalette(c(pathMin, noughtPathColor))
+    pathMins <- rev(pathMinCols(length(which(COrange < noughtPath))+1)) # reverse order
+    pathMaxCols <- colorRampPalette(c(noughtPathColor, pathMax))
+    pathMaxs <- pathMaxCols(length(which(COrange >= noughtPath))+1)
 
     # Use rgb color scales
     for (c in COrange) {
-        if (c < nought) { # Red further from 0 black.
-            COrange_colours <- c(COrange_colours, pathMins[grep(paste("^",c,"$", sep=""),sort(COrange[which(COrange < nought)]))])
+        if (c < noughtPath) { # Red further from 0 black.
+            # assign colours proportional to distance between nought and minFC
+            COrange_colours <- c(COrange_colours, pathMins[min(max(round((noughtPath-c)/(noughtPath-min(COrange))*length(pathMins)),1),length(pathMins))])
+            #COrange_colours <- c(COrange_colours, pathMins[grep(paste("^",c,"$", sep=""),sort(COrange[which(COrange < noughtPath)]))])
         } else { # Green further from 0 black.
-            COrange_colours <- c(COrange_colours, pathMaxs[grep(paste("^",c,"$", sep=""),sort(COrange[which(COrange >= nought)]))+1])
+            # assign colours proportional to distance between nought and maxFC
+            COrange_colours <- c(COrange_colours, pathMaxs[min(max(round((c-noughtPath)/(maxCo-noughtPath)*length(pathMaxs)),1),length(pathMaxs))])
+            #COrange_colours <- c(COrange_colours, pathMaxs[grep(paste("^",c,"$", sep=""),sort(COrange[which(COrange >= noughtPath)]))+1])
         }
     }
 
@@ -1022,8 +1034,8 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
     for (dup in dupli) {
         # first, check that absValues is not also duplicated in truevalue
         # If truevals are also duplicated, then ignore.
-        truevals <- truevalue[grep(paste("^",absValues[dup],"$",sep=""),absValues)]
-        if (sum(duplicated(truevals)) == 0) { # Different true values but same absolute values
+ #       truevals <- truevalue[grep(paste("^",absValues[dup],"$",sep=""),absValues)]
+ #       if (sum(duplicated(truevals)) == 0) { # Different true values but same absolute values
             toReplace <- absValues[dup] + 0.001
             adjusted <- grep(toReplace, absValues)
             if (length(adjusted) != 0) { # New value already exists
@@ -1037,16 +1049,16 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
             } else {
                 absValues[dup] <- toReplace
             }
-        }
+#        }
     }
     edgelist$value <- absValues
-    edgelist <- cbind(edgelist,truevalue)
+    edgelist <- cbind(edgelist,truevalue)   
 
     # Assign colours by edgelist value
     value_domain <- edgelist$value
     value_range <- rep("#999999", length(value_domain))
     for (v in 1:length(value_domain)) {
-        value_range[v] <- COrange_colours[grep(paste("^",edgelist$truevalue[v],"$",sep=""), COrange)]
+        value_range[v] <- COrange_colours[grep(paste("^",round(edgelist$truevalue[v],3),"$",sep=""), COrange)]
     }
 
 
@@ -1073,17 +1085,20 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
     value_domain <- value_domain[resorted_vals]
     value_range <- value_range[resorted_vals]
 
+# Following ERROR still buggy:
+# 1: In (function (..., deparse.level = 1)  :
+#  number of columns of result is not a multiple of vector length (arg 86)
+
     # Check for loops and rename source-target pairs if necessary.
     paths <- list()
     counter <- 1
-    subpaths <- c()
     loop <- c()
     for (i in 1:nrow(edgelist)) {
         Source <- as.character(edgelist[i,"source"])
         Target <- as.character(edgelist[i, "target"])
         exists <- grep(Source, paths)
         if (length(exists) == 0) { # create new item in paths
-            prefix <- grep(Target,lapply(paths,'[[',1))
+            prefix <- grep(paste("^", Target, "$", sep=""),lapply(paths,'[[',1))
             if (length(prefix) > 0) { # Target is Source of a path
                 for (pre in prefix) {
                 paths[[pre]] <- c(Source,paths[[pre]])
@@ -1094,7 +1109,7 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
             }
         } else { # Source already exists in a path
             for (exist in exists) {
-                checked <- grep(paste("^",gsub("[*]","[*]",Source), "$", sep=""), paths[[exist]])
+                checked <- grep(paste("^",gsub("[*]","[*]",Source), "$", sep=""), paths[[exist]]) # Exists as source or target?
                 if (length(checked) == 0) {
                     checked <- -1
                 }
@@ -1134,15 +1149,22 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
 
                         }
                     } else { # new path from Source
-                        paths[[counter]] <- c(Source, Target)
-                        counter <- counter + 1
+                        #verify target is new for this Source
+                        knownTargets <- unlist(paths[grep(Source, lapply(paths,'[[',1))])
+                        if (length(grep(Target, knownTargets)) == 0 || min(grep(Target, knownTargets) - grep(Source, knownTargets)) > 1) { # new direct target for this Source
+                            paths[[counter]] <- c(Source, Target)
+                            counter <- counter + 1
+                        }
                     }
                 }
             }
         }
     }
 
-
+    # ensure numerical
+    edgelist$sourcefc <- as.numeric(edgelist$sourcefc)
+    edgelist$targetfc <- as.numeric(edgelist$targetfc)
+    edgelist$value <- as.numeric(edgelist$value)
     return(list(reference=edgelist,valDomain=value_domain, valRange=value_range, targetDomain=target_domain, sourceDomain=source_domain, targetRange=target_range, sourceRange = source_range))
 
 }
@@ -1156,16 +1178,13 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
 #' @keywords sankey html
 #' @export
 #' @examples
-#' tempList <- createList(data.frame(source=c("A","B","C"),
-#'     target=c("D","E","G"),
-#'     description=c("consonant","vowel","consonant"),
-#'     value=runif(3,-1,1),
-#'     sourcefc=runif(3,-2,2),
-#'     targetfc=runif(3,-2,2)))
-#' initSankey() # set current working directory as output directory
-#' tempList2 <- makeSankey(tempList) # calculates node and path colours and values
-#' drawSankey(tempList2) # Creates sankey to write to file
-#' writeSankey("temp")
+#' Level1 <- createList(poorprog$Level1)
+#' Level2 <- createList(poorprog$Level2)
+#' tempList <- append2List(Level1,Level2)
+#' initSankey()
+#' tempList2 <- makeSankey(tempList) # Calculate node and path values
+#' drawSankey(tempList2) # Create dynamic figure
+#' writeSankey("temp") # Save figure as an HTML file.
 
 writeSankey <- function(name=NULL, title=NULL) {
     if (!requireNamespace("rCharts",quietly=TRUE)) {

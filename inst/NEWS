@@ -1,3 +1,9 @@
+CHANGES IN VERSION 0.99.3
+-------------------------------------
+    o Modified colour assignment rules to be more intuitively scaled. 
+    o Added additional makeSankey parameters to allow for path colouring with a defined threshold/cutoff.
+    o Updated examples to use package data. 
+
 CHANGES IN VERSION 0.99.2
 -------------------------------------
     o Added 'ovca' dataset

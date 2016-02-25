@@ -18,16 +18,13 @@ a dynamic HTML file in the specified directory.
 Save sankey figure as HTML file. Functions Director, makeSankey and drawSankey must be performed before this step to ensure a proper figure is saved.
 }
 \examples{
-tempList <- createList(data.frame(source=c("A","B","C"),
-    target=c("D","E","G"),
-    description=c("consonant","vowel","consonant"),
-    value=runif(3,-1,1),
-    sourcefc=runif(3,-2,2),
-    targetfc=runif(3,-2,2)))
-initSankey() # set current working directory as output directory
-tempList2 <- makeSankey(tempList) # calculates node and path colours and values
-drawSankey(tempList2) # Creates sankey to write to file
-writeSankey("temp")
+Level1 <- createList(poorprog$Level1)
+Level2 <- createList(poorprog$Level2)
+tempList <- append2List(Level1,Level2)
+initSankey()
+tempList2 <- makeSankey(tempList) # Calculate node and path values
+drawSankey(tempList2) # Create dynamic figure
+writeSankey("temp") # Save figure as an HTML file.
 }
 \keyword{html}
 \keyword{sankey}

@@ -32,12 +32,9 @@ a dynamic HTML
 Produce a sankey figure HTML with a given List.
 }
 \examples{
-tempList <- createList(data.frame(source=c("A","B","C"),
-    target=c("D","E","G"),
-    description=c("consonant","vowel","consonant"),
-    value=runif(3,-1,1),
-    sourcefc=runif(3,-2,2),
-    targetfc=runif(3,-2,2)))
+Level1 <- createList(poorprog$Level1)
+Level2 <- createList(poorprog$Level2)
+tempList <- append2List(Level1,Level2)
 initSankey()
 tempList2 <- makeSankey(tempList)
 drawSankey(tempList2)

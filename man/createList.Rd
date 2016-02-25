@@ -45,9 +45,11 @@ tempList <- data.frame(source=c("A","B","C","D"),
     targetValue=nodevals[c(3,4,5,5)])
 tempFC <- data.frame(genes=c("A","B","C","D","E"), foldChange=runif(5,-2,2))
 # inputList only
-createList(tempList, description="addedInfo", value="relationValue", sourcefc="sourceValue", targetfc="targetValue")
+createList(tempList, description="addedInfo", value="relationValue", 
+sourcefc="sourceValue", targetfc="targetValue")
 # inputList and inputFC
-createList(tempList, tempFC, value="relationValue",sourcefc="sourceValue",targetfc="targetValue")
+createList(tempList, tempFC, value="relationValue",sourcefc="sourceValue",
+targetfc="targetValue")
 }
 \keyword{input}
 

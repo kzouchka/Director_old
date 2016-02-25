@@ -5,7 +5,8 @@
 \title{makeSankey}
 \usage{
 makeSankey(List, averagePath = FALSE, nodeMin = "blue", nodeMax = "red",
-  pathMin = "blue", pathMax = "red", noughtColor = "white", nought = 0)
+  pathMin = "blue", pathMax = "red", noughtColor = "#f5f5f0",
+  nought = 0, noughtPath = NULL, noughtPathColor = NULL)
 }
 \arguments{
 \item{List}{Data frame containing 6 columns: source, target, description, value, sourcefc, targetfc.}
@@ -23,6 +24,10 @@ makeSankey(List, averagePath = FALSE, nodeMin = "blue", nodeMax = "red",
 \item{noughtColor}{Colour assigned to nought value.}
 
 \item{nought}{'Zero' value dividing node and paths into two distinct sets. i.e. positive and negative.}
+
+\item{noughtPath}{Optional parameter that sets a different 'zero' value for paths than for nodes.}
+
+\item{noughtPathColor}{Optional parameter that assigns a different colour to the path 'zero' value from the node 'zero' value.}
 }
 \value{
 a list of data.frames and colour vectors.
