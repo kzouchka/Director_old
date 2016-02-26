@@ -36,7 +36,7 @@ Level1 <- createList(poorprog$Level1)
 Level2 <- createList(poorprog$Level2)
 tempList <- append2List(Level1,Level2)
 initSankey()
-tempList2 <- makeSankey(tempList)
+tempList2 <- makeSankey(tempList, averagePath=TRUE)
 drawSankey(tempList2)
 }
 \keyword{draw}

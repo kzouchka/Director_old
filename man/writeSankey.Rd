@@ -22,7 +22,7 @@ Level1 <- createList(poorprog$Level1)
 Level2 <- createList(poorprog$Level2)
 tempList <- append2List(Level1,Level2)
 initSankey()
-tempList2 <- makeSankey(tempList) # Calculate node and path values
+tempList2 <- makeSankey(tempList, averagePath=TRUE) # Calculate node and path values
 drawSankey(tempList2) # Create dynamic figure
 writeSankey("temp") # Save figure as an HTML file.
 }

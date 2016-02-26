@@ -10,7 +10,7 @@
 \usepackage{ragged2e}
 \usepackage{hyperref}
 \usepackage{dirtree}
-
+\usepackage{courier}
 \usepackage{Sweave}
 \begin{document}
 \input{vignette-concordance}
@@ -202,9 +202,10 @@ Before drawing the diagram, colour scales  must first be assigned to the node an
 \begin{Sinput}
 > initSankey()
 > sankey <- makeSankey(tempList2)
-> drawSankey(sankey)
 \end{Sinput}
 \end{Schunk}
+\textit{\texttt{> drawSankey(sankey)}}\\
+
 
 By default, this package assumes larger absolute values are stronger than smaller values. However, some values (e.g. significance levels)  are stronger with smaller values and weaker with larger ones. In these cases, \textit{nought} or zero values can be defined for either paths or nodes such that stronger colors are given to smaller values and weaker colors to larger values. This makes the diagram robust to a wide range of data input and able to match almost any colour theme. Furthermore, both names and hexidecimal codes can be input as colour values.
 
@@ -215,9 +216,11 @@ What if there is no unique path values after the first level of interacting node
 \begin{Sinput}
 > initSankey()
 > sankey2 <- makeSankey(tempList2, averagePath=TRUE)
-> drawSankey(sankey2)
 \end{Sinput}
 \end{Schunk}
+\textit{\texttt{> drawSankey(sankey2)}}\\
+
+
 
 \begin{figure}[htbp]
     \begin{center}
@@ -272,25 +275,20 @@ When any part of the List information is modified, $makeSankey$ needs to be reru
 
 \begin{Schunk}
 \begin{Sinput}
+> # Makes the path colours darker by 10%  and uses a single, uniform font size for the figure rather than font sizes proportional to node size.
 > initSankey(pathOpacity = 0.3, pathHover = 0.6,
 +     fontsizeProportion = FALSE, fontsize=20)
-> # Makes the path colours darker by 10%  and uses a single, uniform font size
-> # for the figure rather than font sizes proportional to node size.
-> 
+> # Changes the default colours used.
 > sankey2 <- makeSankey(tempList2, averagePath=TRUE,
 +     nodeMin = "orange", nodeMax = "purple", pathMax = "#333333")
-> # Changes the default colours used.
 > 
-\end{Sinput}
-\end{Schunk}
-\begin{Schunk}
-\begin{Sinput}
-> drawSankey(sankey2, caption = "Alternate figure",
-+     nodeValue = "Node colour scale", pathValue = "Path colour scale",
-+     legendsize = 14, height = 300)
 > # Changes to legend values and overall figure size
 \end{Sinput}
 \end{Schunk}
+\textit{\texttt{> drawSankey(sankey2, caption = "Alternate figure",
++    nodeValue = "Node colour scale", pathValue = "Path colour scale",
++    legendsize = 14, height = 300)}}\\
+
 
 \begin{figure}[htbp]
     \begin{center}
