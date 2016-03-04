@@ -6,7 +6,7 @@
 \usage{
 filterSubset(List, sourceSubset = NULL, targetSubset = NULL,
   invert = FALSE, source = "source", target = "target",
-  join = c("intersect", "union"))
+  join = c("union", "intersect"))
 }
 \arguments{
 \item{List}{Data frame containing 6 columns: source, target, description, value, sourcefc, targetfc.}

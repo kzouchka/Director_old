@@ -832,7 +832,7 @@ filterNumeric <- function(List, column, min=NULL,max=NULL, absolute=NULL) {
 #' filterSubset(tempList,target="description", targetSubset="consonant")
 #' filterSubset(tempList,target="description", targetSubset="consonant", invert=TRUE)
 
-filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE, source="source",target="target", join=c("intersect","union")) {
+filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE, source="source",target="target", join=c("union","intersect")) {
     if (is.null(List)) {
         stop("Input List is missing.")
     }
@@ -852,7 +852,7 @@ filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE
     }
     if (join == "intersect") {
         Found <- intersect(found, found2)
-    } else if (join == "union") {
+    } else {
         Found <- union(found, found2)
     }
     if (length(Found) == 0) {
