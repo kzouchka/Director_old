@@ -850,6 +850,7 @@ filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE
     if (is.null(sourceSubset) && is.null(targetSubset)) {
         warning("No source or target subset provided. No filtering performed.")
     }
+    join <- match.arg(join)
     if (join == "intersect") {
         Found <- intersect(found, found2)
     } else {
