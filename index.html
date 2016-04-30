@@ -41,9 +41,10 @@
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h3>
 
 <p>Install Director from its <a href="https://github.com/kzouchka/Director">GitHub repository</a>. In R, you first need to
-install <a href="https://github.com/hadley/devtools">devtools</a>.</p>
+install <a href="https://github.com/hadley/devtools">devtools</a> and ensure Bioconductor is a named source.</p>
 
-<div class="highlight highlight-source-r"><pre>install.packages(<span class="pl-s"><span class="pl-pds">"</span>devtools<span class="pl-pds">"</span></span>)`</pre></div>
+<div class="highlight highlight-source-r"><pre>install.packages(<span class="pl-s"><span class="pl-pds">"</span>devtools<span class="pl-pds">"</span></span>)
+source(<span class="pl-s"><span class="pl-pds">"</span>https://bioconductor.org/biocLite.R<span class="pl-pds">"</span></span>)`</pre></div>
 
 <p>Then using the 'install_github' function in the <a href="https://github.com/hadley/devtools">devtools</a> package:</p>
 
