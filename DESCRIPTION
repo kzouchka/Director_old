@@ -21,6 +21,7 @@ License: GPL-3 + file LICENSE
 biocViews: Visualization
 LazyData: true
 Imports:
+    BiocInstaller,
     htmltools,
     utils,
     grDevices

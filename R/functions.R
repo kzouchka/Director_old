@@ -27,6 +27,7 @@ pkg.env$dependencies <- list(css=NULL, layout=NULL, d3=NULL, sankey=NULL)
 #' @keywords download sankey
 #' @export
 #' @import htmltools
+#' @import BiocInstaller
 #' @import utils
 #' @import grDevices
 #' @examples
