@@ -6,7 +6,7 @@
 \usage{
 drawSankey(List, height = NULL, legendfont = "sans-serif",
   legendsize = 12, width = 1000, caption = "Sankey figure",
-  nodeValue = "Log2 fold-change", pathValue = "Correlation coefficient")
+  nodeValue = "node values", pathValue = "path values", directory = NULL)
 }
 \arguments{
 \item{List}{Data frame containing 6 columns: source, target, description, value, sourcefc, targetfc.}
@@ -24,12 +24,14 @@ drawSankey(List, height = NULL, legendfont = "sans-serif",
 \item{nodeValue}{Description of node scale in legend.}
 
 \item{pathValue}{Description of path scale in legend.}
+
+\item{directory}{Absolute path to output directory. If null, the working directory obtained from getwd() will be used. This is required if D3 and sankey JS files were downloaded with initSankey().}
 }
 \value{
-a dynamic HTML
+HTML document containing diagram.
 }
 \description{
-Produce a sankey figure HTML with a given List.
+Create an HTML document that can be viewed and saved to file. Diagram properties can be modified in this function, makeSankey() and initSankey().
 }
 \examples{
 Level1 <- createList(poorprog$Level1)
@@ -37,7 +39,9 @@ Level2 <- createList(poorprog$Level2)
 tempList <- append2List(Level1,Level2)
 initSankey()
 tempList2 <- makeSankey(tempList, averagePath=TRUE)
-drawSankey(tempList2)
+sankey <- drawSankey(tempList2)
+library(htmltools) # can also be launched with
+html_print(sankey)
 }
 \keyword{draw}
 \keyword{sankey}

@@ -1,3 +1,7 @@
+CHANGES IN VERSION 0.99.4
+-------------------------------------
+    o Changed R package dependency to htmltools, resulting in modifications to initSankey(), drawSankey(), and writeSankey() functions.
+
 CHANGES IN VERSION 0.99.3
 -------------------------------------
     o Modified colour assignment rules to be more intuitively scaled. 

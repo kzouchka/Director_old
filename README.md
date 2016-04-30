@@ -1,7 +1,7 @@
 # Director
 
 Director is an R package designed to streamline the visualization of multiple levels of interacting
-biological data. It utilizes a customized Sankey plugin of the JavaScript library D3 (http://d3js.org) to provide an
+biological data. It utilizes the R package htmltools and customized Sankey plugin of the JavaScript library D3 (http://d3js.org) to provide an
 alternative to  standard network visualization of biological networks. It is a fast
 and easy browser-enabled solution to discovering potentially interesting downstream effects or regulatory
 pathways. The diagrams are dynamic, interactive, and packaged as HTML

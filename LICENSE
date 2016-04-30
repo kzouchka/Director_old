@@ -1,13 +1,7 @@
 The Director package as a whole is distributed under GPL-3 (GNU GENERAL PUBLIC
 LICENSE version 3).
 
-The Director package includes open-source software components rCharts (http://rcharts.io) and D3.js (http://d3js.org). Their licenses are included below.
-
-----
-
-rCharts
-
-rCharts is licensed under the MIT License. However, the JavaScript charting libraries that are included with this package are licensed under their own terms. All of them are free for non-commercial use, but some of them are not free for commercial use. So please make sure to check the licensing terms of the charting library you are working with, before using them commercially. Each of the charting libraries contains a License.md file detailing the terms of their license.
+The Director package includes open-source library D3.js (http://d3js.org). The license is included below.
 
 ----
 

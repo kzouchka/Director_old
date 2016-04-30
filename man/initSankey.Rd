@@ -4,14 +4,12 @@
 \alias{initSankey}
 \title{initSankey}
 \usage{
-initSankey(directory = NULL, pathOpacity = 0.2, pathHover = 0.5,
+initSankey(pathOpacity = 0.2, pathHover = 0.5,
   font = "lato, helvetica, sans-serif", fontsize = NULL,
   fontsizeProportion = TRUE, d3js = NULL, sankeyjsFile = NULL,
-  d3jsMethod = "wget", sankeyjsMethod = "wget")
+  d3jsMethod = "auto", sankeyjsMethod = "auto")
 }
 \arguments{
-\item{directory}{Absolute path to output directory. If null, the working directory obtained from getwd() will be used. If no absolute path is given (i.e. no "/" is grepped), it will assume a new folder will be created in the working directory.}
-
 \item{pathOpacity}{Opacity of connecting path between nodes in the figure.}
 
 \item{pathHover}{Opacity of connecting path between nodes upon mouseover.}
@@ -22,7 +20,7 @@ initSankey(directory = NULL, pathOpacity = 0.2, pathHover = 0.5,
 
 \item{fontsizeProportion}{Boolean to enable/disable text being proportional to node widths. When enabled, all node names will appear with parameter fontsize.}
 
-\item{d3js}{Path to download latest zip version of D3 library. e.g. https://github.com/mbostock/d3/releases/download/v3.5.6/d3.zip. See http://www.d3js.org for more details. If NULL, will use version 3.5.6 currently installed with Director.}
+\item{d3js}{Path to download latest zip version of D3 library. e.g. https://github.com/mbostock/d3/releases/download/v3.5.16/d3.zip. See http://www.d3js.org for more details. If NULL, will use version 3.5.16 currently installed with Director.}
 
 \item{sankeyjsFile}{Path to download sankey javascript file. If NULL, will use version installed with Director (https://raw.githubusercontent.com/d3/d3-plugins/master/sankey/sankey.js)}
 
@@ -30,11 +28,8 @@ initSankey(directory = NULL, pathOpacity = 0.2, pathHover = 0.5,
 
 \item{sankeyjsMethod}{Function method to use to download sankey script. ?download.file for more detail on parameter.}
 }
-\value{
-essential HTML files in specified directory.
-}
 \description{
-Specify output folder for HTML figures and create/download required CSS and Javascript support files.
+Internally generates supporting JavaScript and CSS files.
 }
 \examples{
 initSankey("temp") # Creates a temp folder to output HTML files and necesary dependencies.

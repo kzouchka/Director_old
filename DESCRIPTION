@@ -1,19 +1,18 @@
 Package: Director
 Title: A dynamic visualization tool of multi-level data
-Version: 0.99.3
+Version: 0.99.4
 Author: Katherine Icay [aut, cre]
 Maintainer: Katherine Icay <katherine.icay@helsinki.fi>
 Description: Director is an R package designed to streamline the visualization
-    of molecular effects in regulatory cascades. It utilizes a modified Sankey
-    plugin of the JavaScript library D3 to provide a fast and easy, browser-
-    enabled solution to discovering potentially interesting downstream effects
-    of regulatory and/or co-expressed molecules. The diagrams are robust,
-    interactive, and packaged as highly-portable HTML files that eliminate
-    the need for third-party software to view. This enables a straightforward
-    approach for scientists to interpret the data produced, and bioinformatics
-    developers an alternative means to present relevant data. We demonstrate
-    its utility with an ovarian cancer dataset containing matched microRNA
-    and mRNA expression data.
+    of molecular effects in regulatory cascades. It utilizes the R package htmltools
+    and a modified Sankey plugin of the JavaScript library D3 to provide a fast
+    and easy, browser-enabled solution to discovering potentially interesting
+    downstream effects of regulatory and/or co-expressed molecules.
+    The diagrams are robust, interactive, and packaged as highly-portable HTML
+    files that eliminate the need for third-party software to view.
+    This enables a straightforward approach for scientists to interpret the data
+    produced, and bioinformatics developers an alternative means to present
+    relevant data.
 URL: https://github.com/kzouchka/Director
 BugReports: https://github.com/kzouchka/Director/issues
 Depends:
@@ -22,11 +21,7 @@ License: GPL-3 + file LICENSE
 biocViews: Visualization
 LazyData: true
 Imports:
-    devtools,
-    rCharts,
+    htmltools,
     utils,
     grDevices
-Remotes: ramnathv/rCharts
 RoxygenNote: 5.0.1
-NeedsCompilation: no
-Packaged: 2015-12-23 11:42:14 UTC; icay

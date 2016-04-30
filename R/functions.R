@@ -1,57 +1,43 @@
 # Director R package for creating directed regulatory cascades.
 pkg.env <- new.env()
 pkg.env$absoluteDirectory <- getwd()
-pkg.env$localDirectory <- "."
 pkg.env$sankeyPlot <- NULL
+pkg.env$sankeyHTML <- NULL
 pkg.env$nodMin <- "blue"
 pkg.env$nodeMax <- "red"
 pkg.env$pathMin <- "blue"
 pkg.env$pathMax <- "red"
 pkg.env$noughtColor <- "#f5f5f0"
 pkg.env$nought <- 0
+pkg.env$params <- list(id="ID", height=1000, width=1000)
+pkg.env$dependencies <- list(css=NULL, layout=NULL, d3=NULL, sankey=NULL)
+
 #' initSankey
 #'
-#' Specify output folder for HTML figures and create/download required CSS and Javascript support files.
-#' @return essential HTML files in specified directory.
-#' @param directory Absolute path to output directory. If null, the working directory obtained from getwd() will be used. If no absolute path is given (i.e. no "/" is grepped), it will assume a new folder will be created in the working directory.
+#' Internally generates supporting JavaScript and CSS files.
 #' @param pathOpacity Opacity of connecting path between nodes in the figure.
 #' @param pathHover Opacity of connecting path between nodes upon mouseover.
 #' @param font Font used for the node names and additional mouseover text in figure.
 #' @param fontsize Pixel font size used for the visible node names. Use to adjust range of font sizes (with proportions) or to set a single font size when fontsizeProportion is disabled.
 #' @param fontsizeProportion Boolean to enable/disable text being proportional to node widths. When enabled, all node names will appear with parameter fontsize.
-#' @param d3js Path to download latest zip version of D3 library. e.g. https://github.com/mbostock/d3/releases/download/v3.5.6/d3.zip. See http://www.d3js.org for more details. If NULL, will use version 3.5.6 currently installed with Director.
+#' @param d3js Path to download latest zip version of D3 library. e.g. https://github.com/mbostock/d3/releases/download/v3.5.16/d3.zip. See http://www.d3js.org for more details. If NULL, will use version 3.5.16 currently installed with Director.
 #' @param sankeyjsFile Path to download sankey javascript file. If NULL, will use version installed with Director (https://raw.githubusercontent.com/d3/d3-plugins/master/sankey/sankey.js)
 #' @param d3jsMethod Function method to use to download D3 library. ?download.file for more detail on parameter.
 #' @param sankeyjsMethod Function method to use to download sankey script. ?download.file for more detail on parameter.
 #' @keywords download sankey
 #' @export
-#' @import devtools
-#' @import rCharts
+#' @import htmltools
 #' @import utils
 #' @import grDevices
 #' @examples
 #' initSankey("temp") # Creates a temp folder to output HTML files and necesary dependencies.
-initSankey <- function(directory=NULL, pathOpacity=0.2, pathHover=0.5, font="lato, helvetica, sans-serif", fontsize=NULL, fontsizeProportion=TRUE, d3js=NULL, sankeyjsFile=NULL, d3jsMethod="wget", sankeyjsMethod="wget") {
-
-    if (!is.null(directory)) { # designate folder to place output files
-        pkg.env$absoluteDirectory <- gsub("/$","",directory)
-        if (!dir.exists(pkg.env$absoluteDirectory) && length(grep("/",directory)) == 0) { # Not a path but new folder to create
-            dir.create(directory)
-            pkg.env$absoluteDirectory <- paste(getwd(),directory,sep="/")
-            pkg.env$localDirectory <- directory
-        } else if (dir.exists(pkg.env$absoluteDirectory) && length(grep("/",directory)) == 0) { # Folder exists
-            pkg.env$absoluteDirectory <- paste(getwd(),directory,sep="/")
-            pkg.env$localDirectory <- directory
-        }
-    } else { # default output folder is the working directory. localDirectory = "."
-        pkg.env$absoluteDirectory <- getwd()
-    }
+initSankey <- function(pathOpacity=0.2, pathHover=0.5, font="lato, helvetica, sans-serif", fontsize=NULL, fontsizeProportion=TRUE, d3js=NULL, sankeyjsFile=NULL, d3jsMethod="auto", sankeyjsMethod="auto") {
 
     if (is.null(fontsize)) {
-        FontInfo <- paste("-family: ", font, ";
+        FontInfo <- paste("font-family: ", font, ";
         font-weight: 500;", sep="")
     } else {
-        FontInfo <- paste(": ", fontsize, "px ", font, ";", sep="")
+        FontInfo <- paste("font: ", fontsize, "px ", font, ";", sep="")
     }
 
     if (fontsizeProportion) {
@@ -69,309 +55,44 @@ initSankey <- function(directory=NULL, pathOpacity=0.2, pathHover=0.5, font="lat
         fontsizeProportioned <- ""
     }
 
-    cssScript <- paste("/*
-Code is a compilation of:
-http://www.d3noob.org/2013/02/sankey-diagrams-description-of-d3js-code.html
-http://bl.ocks.org/git-ashish/8959771
-And the original, copyright (c) 2015 Mike Bostock http://bost.ocks.org/mike/sankey/
-*/
+    pathOpacText <- paste("stroke_opacity = ", pathOpacity, ";", sep="")
+    pathOpacTextcss <- paste("stroke-opacity: ", pathOpacity, ";", sep="")
+    pathHovText <- paste("stroke_opacity = ", pathHover, ";", sep="")
+    pathHovTextcss <- paste("stroke-opacity: ", pathHover, ";", sep="")
+    fontText <- paste("font-family: ", font, ";", sep="")
+    # Customize required supporting files with user-defined parameters using htmltools
+    cssScript <- htmlTemplate(paste(system.file("www", package="Director"), "/css/sankey.css", sep=""), pathOpacity = pathOpacTextcss, pathHover = pathHovTextcss, FontInfo = FontInfo, font = fontText)
+    layoutHTML <- htmlTemplate(paste(system.file("www", package="Director"), "/layouts/sankey.html", sep=""), Params = HTML(as.character("{{ Params }}")), fontsizeProportioned = HTML(fontsizeProportioned), pathOpacity=pathOpacText, pathHover=pathHovText)        
 
-.node rect {
-    cursor: move;
-    fill-opacity: .9;
-    shape-rendering: crispEdges;
-}
-
-.node text {
-    pointer-events: none;
-    text-shadow: 1px 1px 0 #fff, -1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff;
-}
-
-.link {
-    fill: none;
-    stroke: #000;
-    stroke-opacity: ", pathOpacity, ";
-}
-
-.link:hover {
-    stroke-opacity: ", pathHover, ";
-}
-
-svg {
-    font", FontInfo, "
-}
-
-div.tooltip { /* for node mouseover effect */
-    position: absolute;
-    text-align: left;
-    padding: 4px;
-    font-family: ", font, ";
-    color: #000000;
-    background: #ffffff;
-    border: 0px;
-    border-radius: 3px;
-    pointer-events: none;
-}",sep="")
-
-chartHTML <- paste('<!--Attribution:',
-'copyright (c) 2015 Mike Bostock https://github.com/d3/d3-plugins/tree/master/sankey
-copyright (c) 2015 Mike Bostock http://bost.ocks.org/mike/sankey/
--->
-<script>
-(function(){
-var params = {{{ chartParams }}};
-
-params.units ? units = " " + params.units : units = "";
-
-var formatNumber = d3.format("0,.3f"),    // three decimal places
-    format = function(d) { return formatNumber(d) + units; },
-    color = d3.scale.category20();
-
-if(params.labelFormat){
-    formatNumber = d3.format(".2%");
-}
-
-var svg = d3.select("#" + params.id).append("svg")
-    .attr("width", params.width)
-    .attr("height", params.height);
-
-var sankey = d3.sankey()
-    .nodeWidth(params.nodeWidth)
-    .nodePadding(params.nodePadding)
-    .layout(params.layout)
-    .size([params.width,params.height]);
-
-var path = sankey.link();
-
-var data = params.data,
-    links = [],
-    nodes = [],
-    nodesfc = [];
-
-var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
-
-//get all source and target into nodes
-//will reduce to unique in the next step
-//also get links in object form
-data.source.forEach(function (d, i) {
-    // all data you wish to show in the mouseover of nodes, place here.
-    nodes.push({ "name": data.source[i] });
-    nodes.push({ "name": data.target[i] });
-    nodesfc.push({ "name": data.source[i], "fc": +data.sourcefc[i]  });
-    nodesfc.push({ "name": data.target[i], "fc": +data.targetfc[i]  });
-    // all data you wish to show in the mouseover of the links, place here.
-    links.push({ "source": data.source[i], "target": data.target[i], "value": +data.value[i], "description": data.description[i], "truevalue": +data.truevalue[i], "score_info": data.score_info[i] });
-});
-
-//now get nodes based on links data
-//thanks Mike Bostock https://groups.google.com/d/msg/d3-js/pl297cFtIQk/Eso4q_eBu1IJ
-//this handy little function returns only the distinct / unique nodes
-nodes = d3.keys(d3.nest()
-                .key(function (d) { return d.name; })
-                .map(nodes));
-
-//it appears d3 with force layout wants a numeric source and target
-//so loop through each link replacing the text with its index from node
-links.forEach(function (d, i) {
-    links[i].source = nodes.indexOf(links[i].source);
-    links[i].target = nodes.indexOf(links[i].target);
-});
-
-//now loop through each node to make nodes an array of objects rather than an array of strings
-nodes.forEach(function (d, i) {
-    for(var key in nodesfc) {
-        if(nodesfc[key].name==d) { fcIndex=key; break; }
-    }
-    nodes[i] = { "name": d , "fc": nodesfc[fcIndex].fc};
-});
-
-sankey
-    .nodes(nodes)
-    .links(links)
-    .layout(params.layout);
-
-var link = svg.append("g").selectAll(".link")
-    .data(links)
-.enter().append("path")
-    .attr("class", "link")
-    .attr("d", path)
-    .attr("id", function(d,i){ // needed for path highlighting
-        d.id = i;
-        return "link-"+i;
-    })
-    .style("stroke-width", function (d) { return Math.max(1, d.dy); })
-    .sort(function (a, b) { return b.dy - a.dy; })
-    .on("mouseover", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", 0.9);
-            div .html("<b>" +d.source.name + " -> " + d.target.name + "</b><br><font size=-1>" + d.score_info + " " + format(d.truevalue)  + "<i>" + d.description + "</i></font>")
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-    .on("mouseout", function(d) {
-                div.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-
-link.append("title") ;
-
-var node = svg.append("g").selectAll(".node")
-    .data(nodes)
-.enter().append("g")
-    .attr("class", "node")
-    .on("click", highlight_node_links)
-    .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
-.call(d3.behavior.drag()
-    .origin(function (d) { return d; })
-    .on("dragstart", function () { this.parentNode.appendChild(this); })
-    .on("drag", dragmove))
-    .on("mouseover", function(d) {
-            div.transition()
-                .duration(200)
-                .style("opacity", 0.9);
-            div .html("<b>" + d.name + "</b><br><font size=-1>Foldchange: " + format(d.fc)  + "</font>")
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-    .on("mouseout", function(d) {
-                div.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-
-node.append("rect")
-    .attr("height", function (d) { return d.dy; })
-    .attr("width", sankey.nodeWidth())
-    .style("fill", function (d) { return d.color = color(d.name.replace(/ .*/, "")); })
-    .style("stroke", function (d) { return d3.rgb(d.color).darker(2); })
-    .append("title");
-
-node.append("text")
-    .attr("x", -6)
-    .attr("y", function (d) { return d.dy / 2; })
-    .attr("dy", ".35em")
-    .attr("text-anchor", "end")
-    .attr("transform", null)
-    .text(function (d) { return d.name; })', fontsizeProportioned, '
-    .filter(function (d) { return d.x < params.width / 2; })
-    .attr("x", 6 + sankey.nodeWidth())
-    .attr("text-anchor", "start");
-
-// the function for moving the nodes
-    function dragmove(d) {
-    d3.select(this).attr("transform",
-        "translate(" + (
-                d.x = Math.max(0, Math.min(params.width - d.dx, d3.event.x))
-                ) + "," + (
-                d.y = Math.max(0, Math.min(params.height - d.dy, d3.event.y))
-                ) + ")");
-        sankey.relayout();
-        link.attr("d", path);
-    }
-
-// the function for highlighting paths
-    function highlight_node_links(node,i){
-
-    var remainingNodes=[],
-        nextNodes=[];
-
-    var stroke_opacity = 0;
-    if( d3.select(this).attr("data-clicked") == "1" ){
-        d3.select(this).attr("data-clicked","0");
-        stroke_opacity = ', pathOpacity, ';
-    }else{
-        d3.select(this).attr("data-clicked","1");
-        stroke_opacity = ', pathHover, ';
-    }
-
-    var traverse = [{
-                    linkType : "sourceLinks",
-                    nodeType : "target"
-                    },{
-                    linkType : "targetLinks",
-                    nodeType : "source"
-                    }];
-
-    traverse.forEach(function(step){
-        node[step.linkType].forEach(function(link) {
-        remainingNodes.push(link[step.nodeType]);
-        highlight_link(link.id, stroke_opacity);
-        });
-
-    while (remainingNodes.length) {
-        nextNodes = [];
-        remainingNodes.forEach(function(node) {
-            node[step.linkType].forEach(function(link) {
-            nextNodes.push(link[step.nodeType]);
-            highlight_link(link.id, stroke_opacity);
-        });
-        });
-        remainingNodes = nextNodes;
-        }
-    });
-}
-
-    function highlight_link(id,opacity){
-        d3.select("#link-"+id).style("stroke-opacity", opacity);
-    }
-
-})();
-</script>\n',sep="")
-
-configScript <- paste('d3_horizon:
-    css: [css/sankey.css]
-    jshead: [js/d3.v3.js,js/sankey.js]
-    cdn:
-        jshead:
-            - "http://d3js.org/d3.v3.min.js"
-            -', ' "https://raw.githubusercontent.com/d3/d3-plugins/master/sankey/sankey.js"\n',sep="")
-
-    # Write files to folder
-    if (!dir.exists(pkg.env$absoluteDirectory)) {
-        stop(paste("Path ", pkg.env$absoluteDirectory, " does not exist.", sep=""))
-    } else {
-        if (!dir.exists(paste(pkg.env$absoluteDirectory,"css",sep="/"))) {
-            dir.create(paste(pkg.env$absoluteDirectory,"css",sep="/"))
-        }
-        if (!dir.exists(paste(pkg.env$absoluteDirectory,"layouts",sep="/"))) {
-            dir.create(paste(pkg.env$absoluteDirectory,"layouts",sep="/"))
-        }
-        if (!dir.exists(paste(pkg.env$absoluteDirectory,"js",sep="/"))) {
-            dir.create(paste(pkg.env$absoluteDirectory,"js", sep="/"))
-        }
-        cssConn <- file(paste(pkg.env$absoluteDirectory,"css/sankey.css",sep="/"))
-        cat(cssScript, file=cssConn)
-        close(cssConn)
-        htmlConn <- file(paste(pkg.env$absoluteDirectory,"layouts/chart.html",sep="/"))
-        cat(chartHTML, file=htmlConn)
-        close(htmlConn)
-        configConn <- file(paste(pkg.env$absoluteDirectory,"config.yml",sep="/"))
-        cat(configScript, file=configConn)
-        close(configConn)
-        if (length(grep(".zip",d3js)) == 1) { # need to unzip!
-            temp <- tempfile()
+    pkg.env$dependencies$css <- cssScript
+    pkg.env$dependencies$layout <-  layoutHTML
+    
+    # Write JS files temporarily to working directory
+    if (length(grep(".zip",d3js)) == 1) { # need to unzip!
             # download D3 JavaScript library from server
-            download.file(d3js, temp, method=d3jsMethod)
+            d3js <- gsub("https", "http", d3js) # ensure wget works
+            download.file(d3js, paste(pkg.env$absoluteDirectory,"d3.zip",sep="/"), method=d3jsMethod)
             # unload library
-            unzip(temp, exdir=paste(pkg.env$absoluteDirectory,"js", sep="/"))
-            system(paste("mv ", pkg.env$absoluteDirectory, "/js/d3.js ", pkg.env$absoluteDirectory, "/js/d3.v3.js", sep="")) # Something in Sankey rCharts looks for d3.v3.js rather than d3.js
+            unzip(paste(pkg.env$absoluteDirectory,"d3.zip", sep="/"), exdir="temp")
+            system(paste("mv ", pkg.env$absoluteDirectory, "/temp/d3.js ", pkg.env$absoluteDirectory, "/temp/d3.v3.js", sep=""))
+            pkg.env$dependencies$d3 <- HTML(paste(readLines(paste(pkg.env$absoluteDirectory, "temp/d3.v3.js", sep="/"), warn=FALSE), collapse="\n"))
+            system(paste("rm -rf ", "temp", sep=""))
+            system(paste("rm ", pkg.env$absoluteDirectory, "/d3.zip", sep=""))
         } else if (is.null(d3js)) { # Use installed version
-            system(paste("cp ", system.file(package="Director"),"/d3-3.5.6/* ", pkg.env$absoluteDirectory, "/js",sep=""))
+            d3js <- NULL
         } else {
-            stop("Two d3js files are usually needed to produce HTML files correctly -- d3.js, and d3.min.js. See http://d3js.org for more details.")
+            stop("D3 javascript library (v3) zip file is needed to produce HTML files correctly. See http://d3js.org for more details.")
         }
 
-        if (is.null(sankeyjsFile)) { # use installed version
-            system(paste("cp ", system.file(package="Director"),"/sankey.js ", pkg.env$absoluteDirectory, "/js",sep=""))
+    if (is.null(sankeyjsFile)) { # use installed version
+            sankeyjsFile <- NULL
         } else {
-        # Download Sankey JavaScript file
-        download.file(sankeyjsFile, paste(pkg.env$absoluteDirectory, "js","sankey.js", sep="/"), method=sankeyjsMethod)
+            # Download Sankey JavaScript file
+            download.file(sankeyjsFile, paste(pkg.env$absoluteDirectory,"sankey.js", sep="/"), method=sankeyjsMethod)
+            pkg.env$dependencies$sankey <- HTML(paste(readLines(paste(pkg.env$absoluteDirectory, "sankey.js", sep="/"), warn=FALSE), collapse="\n"))
+            system(paste("rm ", pkg.env$absoluteDirectory, "/sankey.js", sep=""))
         }
-    }
+        
 }
 
 #' append2List
@@ -550,8 +271,8 @@ createList <- function(inputList, inputFC=NULL, node="genes", fc="foldChange", s
 
 #' drawSankey
 #'
-#' Produce a sankey figure HTML with a given List.
-#' @return a dynamic HTML
+#' Create an HTML document that can be viewed and saved to file. Diagram properties can be modified in this function, makeSankey() and initSankey().
+#' @return HTML document containing diagram.
 #' @param List Data frame containing 6 columns: source, target, description, value, sourcefc, targetfc.
 #' @param height Pixel height of the figure to draw. If empty, the figure will be given a pixel height proportional to the number of rows in List up to a maximum 1800px or minimum of 300px. These can be overridden by defining this parameter.
 #' @param width Pixel width of the figure to draw. By default, 1000px.
@@ -560,6 +281,7 @@ createList <- function(inputList, inputFC=NULL, node="genes", fc="foldChange", s
 #' @param legendsize Font size of the legend text.
 #' @param nodeValue Description of node scale in legend.
 #' @param pathValue Description of path scale in legend.
+#' @param directory Absolute path to output directory. If null, the working directory obtained from getwd() will be used. This is required if D3 and sankey JS files were downloaded with initSankey().
 #' @keywords draw sankey
 #' @export
 #' @examples
@@ -568,15 +290,16 @@ createList <- function(inputList, inputFC=NULL, node="genes", fc="foldChange", s
 #' tempList <- append2List(Level1,Level2)
 #' initSankey()
 #' tempList2 <- makeSankey(tempList, averagePath=TRUE)
-#' drawSankey(tempList2)
-
-drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12, width=1000, caption="Sankey figure", nodeValue="Log2 fold-change", pathValue="Correlation coefficient") {
-    if (!dir.exists(pkg.env$absoluteDirectory)) {
-        stop("path provided does not exist. Consider running initSankey() function and rerun writeSankey with with default parameter.")
+#' sankey <- drawSankey(tempList2)
+#' library(htmltools) # can also be launched with
+#' html_print(sankey)
+drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12, width=1000, caption="Sankey figure", nodeValue="node values", pathValue="path values", directory = NULL) {
+    if (is.null(pkg.env$dependencies$css) || is.null(pkg.env$dependencies$layout)) {
+        stop("Dependency files missing. Have you run initSankey() before this function?")
         }
     # make sure List is formatted correctly
     if (length(List) != 7) {
-        stop("A List must be provided. Format a List of source-target pairs with makeSankey() function and try this function again.")
+        stop("A List with a set number of columns must be provided. See ?drawSankey for details or run makeSankey() and try again.")
     }
     trueVals <- List$reference$truevalue
     FC <- c(List$reference$sourcefc, List$reference$targetfc)
@@ -613,7 +336,16 @@ drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12
         grd.addColorStop(1, '",sep="")
     }
 
+    # Create a unique 10-letter ID for the diagram div
+    idmaker <- function() { 
+        lets <- toupper(sample(letters,sample(2:10,1), replace=T))
+        nums <- sample(0:9,10-length(lets), replace=T)
+        ids <- paste(c(lets[1], sample(c(nums,lets[2:length(lets)]),9)), collapse="") # always start with a letter
+      return(ids)
+      }
+    pkg.env$params$id <- paste("Dir", idmaker(),sep="")
 
+    # Create additional legend and caption for 
     customScript <- paste("
     <script>
     var color = d3.scale.ordinal()
@@ -624,11 +356,11 @@ drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12
         .domain(['", paste(List$targetDomain,collapse="','"),"','", paste(List$sourceDomain,collapse="','"),"'])
         .range(['", paste(List$targetRange, collapse="','"),"','", paste(List$sourceRange, collapse="','"),"']);
 
-    d3.selectAll('#{{ chartId }} svg path.link')
+    d3.selectAll('#", pkg.env$params$id, " svg path.link')
         .style('stroke', function(d){
             return color(d.value);
         })
-        d3.selectAll('#{{ chartId }} svg .node rect')
+        d3.selectAll('#", pkg.env$params$id, " svg .node rect')
         .style('fill', function(d){
             return color2(d.name)
         })
@@ -666,13 +398,6 @@ drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12
     </td></tr></table>
     ", sep="")
 
-    if (!requireNamespace("rCharts",quietly=TRUE)) {
-        stop("Package rCharts is needed for this function to work. Please install it.")
-    } else {
-        message(paste("Figure drawn using resources in", pkg.env$absoluteDirectory,sep=" "))
-        pkg.env$sankeyPlot <- rCharts::rCharts$new()
-        pkg.env$sankeyPlot$setLib(pkg.env$absoluteDirectory)
-        pkg.env$sankeyPlot$setTemplate(afterScript = customScript[1])
 
         # Calculate height of figure based on number of connections to map
         if (is.null(height)) {
@@ -687,17 +412,120 @@ drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12
             H <- height
         }
 
-        pkg.env$sankeyPlot$set(
-        data = List$reference,
-        nodeWidth = 15,
-        nodePadding = 10,
-        layout = 32,
-        width = width,
-        height = H
-        )
-        pkg.env$sankeyPlot
-        return(pkg.env$sankeyPlot)
+    # Create List$reference in data array format recognized by D3.
+    dataList <- paste('source: [ "', paste(List$reference$source, collapse='", "'), '" ],
+        target: [ "', paste(List$reference$target, collapse='", "'), '" ],
+        description: [ "', paste(List$reference$description, collapse='", "'), '" ],
+        value: [ ', paste(List$reference$value, collapse=', '), ' ],
+        sourcefc: [ ', paste(List$reference$sourcefc, collapse=', '), ' ],
+        targetfc: [ ', paste(List$reference$targetfc, collapse=', '), ' ],
+        truevalue: [ ', paste(List$reference$truevalue, collapse=', '), ' ],
+        score_info: [ "', paste(List$reference$score_info, collapse='", "'), '" ]',
+        sep="")
+
+    pkg.env$params$height <- H
+    pkg.env$params$width <- width
+    Params <- list(dom=pkg.env$params$id,
+                      width= width,
+                      height= H,
+                      data= dataList,
+                      nodeWidth= 15, # default parameters
+                      nodePadding= 10,
+                      layout= 32,
+                      id=pkg.env$params$id
+    )
+
+    ParamsInput <- paste('var params = {  
+    dom: "', Params$dom, '",
+    width: ', Params$width, ",
+    height: ", Params$height, ",
+    data: {", Params$data, " },
+    nodeWidth: ", Params$nodeWidth, ",
+    nodePadding: ", Params$nodePadding, ",
+    layout: ", Params$layout, ',
+    id: "', Params$id, '" };',sep="")
+
+    layoutHTML <- htmlTemplate(text_=as.character(pkg.env$dependencies$layout), Params = ParamsInput)
+    
+    # Used by shiny
+    pkg.env$sankeyPlot <- HTML(paste(layoutHTML, HTML(customScript), sep="\n")) 
+ 
+    # Use htmltools to create and render a full HTML page.
+    if (is.null(pkg.env$dependencies$sankey)) {
+        sankeyJS <- paste(system.file(package="Director"), "/www/js", sep="")
+    } else {
+        if (is.null(directory)) { # Write to working directory
+            if (!dir.exists(pkg.env$absoluteDirectory)) {
+                stop(paste("Path ", pkg.env$absoluteDirectory, " does not exist.", sep=""))
+            }
+        } else { # Write to custom directory
+            if (!dir.exists(directory)) {
+                stop(paste("Path ", directory, " does not exist.", sep=""))
+            } else {
+                pkg.env$absoluteDirectory <- directory
+            }
+        }
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www",sep="/"))
+        }
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www/js",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www/js", sep="/"))
+        }
+        sankeyJS <- paste(pkg.env$absoluteDirectory, "www/js", sep="/")
+        sankeyJSconn <- file(paste(sankeyJS, "sankey.js", sep="/"))
+        cat(HTML(as.character(pkg.env$dependencies$sankey)), file = sankeyJSconn)
+        close(sankeyJSconn)
     }
+    if (is.null(pkg.env$dependencies$d3)) {
+        d3JS <- paste(system.file(package="Director"), "/www/js", sep="")
+    } else {
+        if (is.null(directory)) { # Write to working directory
+            if (!dir.exists(pkg.env$absoluteDirectory)) {
+                stop(paste("Path ", pkg.env$absoluteDirectory, " does not exist.", sep=""))
+            }
+        } else { # Write to custom directory
+            if (!dir.exists(directory)) {
+                stop(paste("Path ", directory, " does not exist.", sep=""))
+            } else {
+                pkg.env$absoluteDirectory <- directory
+            }
+        }
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www",sep="/"))
+        }
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www/js",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www/js", sep="/"))
+        }
+        d3JS <- paste(pkg.env$absoluteDirectory, "www/js", sep="/")
+        d3JSconn <- file(paste(d3JS, "d3.v3.js", sep="/"))
+        cat(HTML(as.character(pkg.env$dependencies$d3)), file = d3JSconn)
+        close(d3JSconn)
+    }
+
+    # Template HTML
+    htmlContent <- '{{ Diagram }}
+    {{ sankeyPlot }}
+<p>Use <em>writeSankey</em> to save this diagram as a portable HTML file.</p>'
+
+    headStyle <- paste('<style>
+    ', sprintf("
+            .d3-sankey {
+                width: %s;
+                height: %s;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;}",
+                validateCssUnit(pkg.env$params$width),
+                validateCssUnit(pkg.env$params$height)), '
+    ', pkg.env$dependencies$css, '
+</style>', sep="")
+
+    htmlDocument <- htmlTemplate(text_=htmlContent, document_=TRUE, Diagram = attachDependencies(div(id=pkg.env$params$id, class="d3-sankey"), htmlDependency(name="d3", version="3.5.6", c(href=d3JS), script="d3.v3.js",  head=headStyle)), sankeyPlot= attachDependencies(pkg.env$sankeyPlot, htmlDependency(name="d3-sankey", version="3.5.6", c(href=sankeyJS), script="sankey.js")))
+    
+    pkg.env$sankeyHTML <- htmlDocument
+
+    html_print(htmlDocument)
+    return(pkg.env$sankeyHTML)
 }
 
 #' filterRelation
@@ -784,7 +612,6 @@ filterRelation <- function(List, relation=c("none", "inverseFC", "correlatedFC",
 #'     targetfc=runif(3,-2,2)))
 #' filterNumeric(tempList,"sourcefc", absolute=0.5)
 #' filterNumeric(tempList, "targetfc", max=0) # only take down-regulated targets
-
 filterNumeric <- function(List, column, min=NULL,max=NULL, absolute=NULL) {
     if (is.null(List) || is.null(column)) {
         stop("One or both of 'List' and 'column' are missing.")
@@ -831,7 +658,6 @@ filterNumeric <- function(List, column, min=NULL,max=NULL, absolute=NULL) {
 #' sourceSubset="C", targetSubset="consonant")
 #' filterSubset(tempList,target="description", targetSubset="consonant")
 #' filterSubset(tempList,target="description", targetSubset="consonant", invert=TRUE)
-
 filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE, source="source",target="target", join=c("union","intersect")) {
     if (is.null(List)) {
         stop("Input List is missing.")
@@ -857,7 +683,7 @@ filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE
         Found <- union(found, found2)
     }
     if (length(Found) == 0) {
-        warning("No subset found. No filtering performed")
+        message("No subset found. No filtering performed")
         Found <- c(1:nrow(List))
     }
     return(List[Found,])
@@ -888,7 +714,6 @@ filterSubset <- function(List, sourceSubset=NULL, targetSubset=NULL,invert=FALSE
 #'     targetfc=runif(3,-2,2)))
 #' initSankey()
 #' tempList2 <- makeSankey(tempList)
-
 makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", pathMin="blue", pathMax="red", noughtColor="#f5f5f0", nought=0, noughtPath=NULL, noughtPathColor=NULL) {
     edgelist <- List
     edgelist_avg <- List
@@ -1086,10 +911,6 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
     value_domain <- value_domain[resorted_vals]
     value_range <- value_range[resorted_vals]
 
-# Following ERROR still buggy:
-# 1: In (function (..., deparse.level = 1)  :
-#  number of columns of result is not a multiple of vector length (arg 86)
-
     # Check for loops and rename source-target pairs if necessary.
     paths <- list()
     counter <- 1
@@ -1172,46 +993,97 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
 
 #' writeSankey
 #'
-#' Save sankey figure as HTML file. Functions Director, makeSankey and drawSankey must be performed before this step to ensure a proper figure is saved.
-#' @return a dynamic HTML file in the specified directory.
+#' Save sankey figure as a simple HTML file accessible outside of R and shiny. 
+#' Functions initSankey, makeSankey and drawSankey must be performed before this step to ensure a proper figure is saved.
+#' @return a dynamic HTML file in the specified directory that is readable in any internet browser so long as the 'www' subfolder is included.
 #' @param name Name to give file. If no path given, the working directory OR path set in Director will be used. Same name will be given as the title.
 #' @param title Title of the HTML file produced. The file name is used by default.
+#' @param directory Absolute path to output directory. If null, the working directory obtained from getwd() will be used. If no absolute path is given (i.e. no "/" is grepped), it will assume a new folder will be created in the working directory.
 #' @keywords sankey html
 #' @export
 #' @examples
 #' Level1 <- createList(poorprog$Level1)
 #' Level2 <- createList(poorprog$Level2)
 #' tempList <- append2List(Level1,Level2)
-#' initSankey()
+#' initSankey() # initializes working directory
 #' tempList2 <- makeSankey(tempList, averagePath=TRUE) # Calculate node and path values
-#' drawSankey(tempList2) # Create dynamic figure
-#' writeSankey("temp") # Save figure as an HTML file.
-
-writeSankey <- function(name=NULL, title=NULL) {
-    if (!requireNamespace("rCharts",quietly=TRUE)) {
-        stop("Package rCharts is needed for this function to work. Please install it.")
-    } else {
-        if (is.null(name)) {
+#' sankey <- drawSankey(tempList2)
+#' writeSankey("temp") # Save figure as the file 'temp.html' in working directory.
+writeSankey <- function(name=NULL, title=NULL, directory=NULL) {
+    if (is.null(name)) {
             stop("Name is needed to create an HTML file.")
-        } else {
+    } else {
+            if (is.null(pkg.env$sankeyHTML)) {
+                stop("No diagram content to write. Have you run makeSankey() and drawSankey()?")
+            }
             if (is.null(title)) {
                 title <- name
             }
             if (length(grep(".html$", name)) == 0) { # Add extension to open in browser
                 name <- paste(name,"html",sep=".")
             }
-            # Write to file
-            pkg.env$sankeyPlot$save(paste(pkg.env$absoluteDirectory, name,sep="/"))
+           
+    # Create and write files to working directory
+        if (!is.null(directory)) { # designate folder to place output files
+        pkg.env$absoluteDirectory <- gsub("/$","",directory)
+        if (!dir.exists(pkg.env$absoluteDirectory) && length(grep("/",directory)) == 0) { # Not a path but new folder to create
+            dir.create(directory)
+            pkg.env$absoluteDirectory <- paste(getwd(),directory,sep="/")
+        } else if (dir.exists(pkg.env$absoluteDirectory) && length(grep("/",directory)) == 0) { # Folder exists
+            pkg.env$absoluteDirectory <- paste(getwd(),directory,sep="/")
+        }
+    } else { # default output folder is the working directory. localDirectory = "."
+        pkg.env$absoluteDirectory <- getwd()
+    }
 
+    if (!dir.exists(pkg.env$absoluteDirectory)) {
+        stop(paste("Path ", pkg.env$absoluteDirectory, " does not exist.", sep=""))
+    } else {
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www",sep="/"))
+        }
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www/js",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www/js", sep="/"))
+            system(paste("cp ", system.file(package="Director"),"/www/js/LICENSE ", pkg.env$absoluteDirectory, "/www/js",sep=""))
+        }
+        if (!dir.exists(paste(pkg.env$absoluteDirectory,"www/css",sep="/"))) {
+            dir.create(paste(pkg.env$absoluteDirectory,"www/css", sep="/"))
+        }
+    }
+    # Write JS libraries
+    if (is.null(pkg.env$dependencies$sankey)) { # Use package default
+        system(paste("cp ", system.file(package="Director"),"/www/js/sankey.js ", pkg.env$absoluteDirectory, "/www/js",sep=""))
+    } else {
+        jsConn <- file(paste(pkg.env$absoluteDirectory, "www/js/sankey.js", sep="/"))
+        cat(pkg.env$dependencies$sankey, file=jsConn)
+        close(jsConn)
+    }            
+    if (is.null(pkg.env$dependencies$d3)) { # Use package default
+        system(paste("cp ", system.file(package="Director"),"/www/js/d3.v3.js ", pkg.env$absoluteDirectory, "/www/js",sep=""))
+    } else {
+        jsConn2 <- file(paste(pkg.env$absoluteDirectory, "www/js/d3.v3.js", sep="/"))
+        cat(pkg.env$dependencies$d3, file=jsConn2)
+        close(jsConn2)
+    }            
+    cssConn <- file(paste(pkg.env$absoluteDirectory, "www/css/sankey.css", sep="/"))
+    cat(as.character(pkg.env$dependencies$css), file=cssConn)
+    close(cssConn)
+
+            # Write HTML file and make dependencies relative
+            save_html(pkg.env$sankeyHTML, paste(pkg.env$absoluteDirectory, name, sep="/"))
+            message(paste("Sankey saved externally to ", paste(pkg.env$absoluteDirectory, name, sep="/"),".",sep=""))
+            
             # Convert absolute paths to local. This will make resulting HTML files portable
             HTMLfile <- file(paste(pkg.env$absoluteDirectory, name,sep="/"))
             HTMLtext <- readLines(HTMLfile)
-            HTMLtext[grep("sankey.css", HTMLtext)] <- "<link rel='stylesheet' href='css/sankey.css'>"
-            HTMLtext[grep("d3.v3.js", HTMLtext)] <- "<script src='js/d3.v3.js' type='text/javascript'></script>"
-            HTMLtext[grep("sankey.js", HTMLtext)]  <- "<script src='js/sankey.js' type='text/javascript'></script>"
-            HTMLtext[grep("</head>",HTMLtext)] <- gsub("</head>",paste("<title>",title,"</title></head>",sep=""),HTMLtext[grep("</head>",HTMLtext)])
+            HTMLtext[grep("d3.v3.js", HTMLtext)] <- "<script src='www/js/d3.v3.js' type='text/javascript'></script>"
+            HTMLtext[grep("sankey.js", HTMLtext)]  <- "<script src='www/js/sankey.js' type='text/javascript'></script>"
+            HTMLtext[grep("</head>",HTMLtext)] <- gsub("</head>",paste("<link rel='stylesheet' href='www/css/sankey.css'><title>",title, "</title></head>",sep=""),HTMLtext[grep("</head>",HTMLtext)])
+            HTMLtext[grep("writeSankey", HTMLtext)] <- "<p>Diagram uses resources in 'www' subfolder.</p>"
+            startCSS <- grep("Code is a compilation", HTMLtext)-2
+            endCSS <- grep("pointer-events: none;", HTMLtext)[length(grep("pointer-events: none;", HTMLtext))] + 2
+            HTMLtext <- c(HTMLtext[c(1:startCSS)],  "", HTMLtext[c(endCSS:length(HTMLtext))])
             cat(HTMLtext, file=paste(pkg.env$absoluteDirectory, name,sep="/"),sep="\n")
             close(HTMLfile)
-        }
     }
 }

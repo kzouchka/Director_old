@@ -4,27 +4,30 @@
 \alias{writeSankey}
 \title{writeSankey}
 \usage{
-writeSankey(name = NULL, title = NULL)
+writeSankey(name = NULL, title = NULL, directory = NULL)
 }
 \arguments{
 \item{name}{Name to give file. If no path given, the working directory OR path set in Director will be used. Same name will be given as the title.}
 
 \item{title}{Title of the HTML file produced. The file name is used by default.}
+
+\item{directory}{Absolute path to output directory. If null, the working directory obtained from getwd() will be used. If no absolute path is given (i.e. no "/" is grepped), it will assume a new folder will be created in the working directory.}
 }
 \value{
-a dynamic HTML file in the specified directory.
+a dynamic HTML file in the specified directory that is readable in any internet browser so long as the 'www' subfolder is included.
 }
 \description{
-Save sankey figure as HTML file. Functions Director, makeSankey and drawSankey must be performed before this step to ensure a proper figure is saved.
+Save sankey figure as a simple HTML file accessible outside of R and shiny. 
+Functions initSankey, makeSankey and drawSankey must be performed before this step to ensure a proper figure is saved.
 }
 \examples{
 Level1 <- createList(poorprog$Level1)
 Level2 <- createList(poorprog$Level2)
 tempList <- append2List(Level1,Level2)
-initSankey()
+initSankey() # initializes working directory
 tempList2 <- makeSankey(tempList, averagePath=TRUE) # Calculate node and path values
-drawSankey(tempList2) # Create dynamic figure
-writeSankey("temp") # Save figure as an HTML file.
+sankey <- drawSankey(tempList2)
+writeSankey("temp") # Save figure as the file 'temp.html' in working directory.
 }
 \keyword{html}
 \keyword{sankey}

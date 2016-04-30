@@ -1,0 +1,44 @@
+/*
+Code is a compilation of:
+http://www.d3noob.org/2013/02/sankey-diagrams-description-of-d3js-code.html
+http://bl.ocks.org/git-ashish/8959771
+And the original, copyright (c) 2015 Mike Bostock http://bost.ocks.org/mike/sankey/
+*/
+
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+  }
+
+.node text {
+  pointer-events: none;
+  text-shadow: 1px 1px 0 #fff, -1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff;
+  }
+
+.link {
+  fill: none;
+  stroke: #000;
+  {{ pathOpacity }}
+  }
+
+.link:hover {
+  {{ pathHover }}
+  }
+
+svg {
+{{ FontInfo }}
+  }
+
+div.tooltip { /* for node mouseover effect */
+  position: absolute;
+  text-align: left;
+  padding: 4px;
+  {{ font }}
+  color: #000000;
+  background: #ffffff;
+  border: 0px;
+  border-radius: 3px;
+  pointer-events: none;
+  }
+
