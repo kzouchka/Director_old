@@ -11,6 +11,9 @@ The Cancer Genome Atlas
 \usage{
 ovca
 }
+\value{
+data frame
+}
 \description{
 Data frames listing a set of genes
 differentially expressed between long surviving (good prognosis)

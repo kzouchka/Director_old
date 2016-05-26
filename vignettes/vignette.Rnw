@@ -9,7 +9,6 @@
 \usepackage{a4wide}
 \usepackage{ragged2e}
 \usepackage{hyperref}
-\usepackage{dirtree}
 \usepackage{courier}
 \begin{document}
 \SweaveOpts{concordance=TRUE}
@@ -231,18 +230,18 @@ The relevant outputs generated are:
 \end{enumerate}
 The former is a standard R data frame and can be saved with normal methods, e.g. $write.table()$. This simplifies later usage as it is already in the appropriate List format and can immediately be used with filtering and Sankey functions.
 
-The latter can be saved to a locally accessible folder and made portable using the function $writeSankey$. It generates a 'www' folder in the same directory as the saved diagram containing the following dependency files:
-\dirtree{%
-.1 /.
-.2 www.
-.3 css.
-.4 sankey.css.
-.3 js.
-.4 d3.v3.js.
-.4 LICENSE.
-.4 sankey.js.
-}
-
+The latter can be saved to a locally accessible folder and made portable using the function $writeSankey$. It generates an HTML file and 'www' folder containing the following dependency files:
+\begin{verbatim}
+./www
+   |
+   +-- css
+       sankey.css
+   |
+   +-- js
+       d3.v3.js
+       LICENSE
+       sankey.js
+\end{verbatim}
 HTML has the dual benefit of preserving information dynamics of the diagram and vector graphics quality. As a result, adjusting the flow of the diagram and saving as a high-quality PDF (or .png) in any dimension is simple.
 
 

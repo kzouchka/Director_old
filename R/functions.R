@@ -15,6 +15,7 @@ pkg.env$dependencies <- list(css=NULL, layout=NULL, d3=NULL, sankey=NULL)
 #' initSankey
 #'
 #' Internally generates supporting JavaScript and CSS files.
+#' @return global JavaScript and CSS files.
 #' @param pathOpacity Opacity of connecting path between nodes in the figure.
 #' @param pathHover Opacity of connecting path between nodes upon mouseover.
 #' @param font Font used for the node names and additional mouseover text in figure.
@@ -30,7 +31,7 @@ pkg.env$dependencies <- list(css=NULL, layout=NULL, d3=NULL, sankey=NULL)
 #' @import utils
 #' @import grDevices
 #' @examples
-#' initSankey("temp") # Creates a temp folder to output HTML files and necesary dependencies.
+#' initSankey() # Generates supporting JavaScript and CSS files.
 initSankey <- function(pathOpacity=0.2, pathHover=0.5, font="lato, helvetica, sans-serif", fontsize=NULL, fontsizeProportion=TRUE, d3js=NULL, sankeyjsFile=NULL, d3jsMethod="auto", sankeyjsMethod="auto") {
 
     if (is.null(fontsize)) {
@@ -338,8 +339,8 @@ drawSankey <- function(List, height=NULL, legendfont="sans-serif", legendsize=12
 
     # Create a unique 10-letter ID for the diagram div
     idmaker <- function() { 
-        lets <- toupper(sample(letters,sample(2:10,1), replace=T))
-        nums <- sample(0:9,10-length(lets), replace=T)
+        lets <- toupper(sample(letters,sample(2:10,1), replace=TRUE))
+        nums <- sample(0:9,10-length(lets), replace=TRUE)
         ids <- paste(c(lets[1], sample(c(nums,lets[2:length(lets)]),9)), collapse="") # always start with a letter
       return(ids)
       }

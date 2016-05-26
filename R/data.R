@@ -6,6 +6,7 @@
 #' miRNAs, and significantly enriched pathways (FDR < 0.1). Each row
 #' contains a miRNA-gene/gene-pathway pair, a description, expression
 #' correlation (path values), and expression fold-change (node values).
+#' @return data frame
 #' @docType data
 #' @usage ovca
 #' @format a \code{list} instance containing 2 data frames.
@@ -20,6 +21,7 @@ NULL
 #' and significantly enriched pathways (FDR < 0.1). Each row
 #' contains a miRNA-gene/gene-pathway pair, a description, expression
 #' correlation (path values), and expression fold-change (node values).
+#' @return data frame
 #' @docType data
 #' @usage ovca
 #' @format a \code{list} instance containing 2 data frames.

@@ -11,6 +11,9 @@ The Cancer Genome Atlas. Yang et al., 2013.
 \usage{
 ovca
 }
+\value{
+data frame
+}
 \description{
 Data frames listing a set of genes
 differentially expressed between mesenchymal and three other serous

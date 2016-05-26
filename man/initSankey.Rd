@@ -28,11 +28,14 @@ initSankey(pathOpacity = 0.2, pathHover = 0.5,
 
 \item{sankeyjsMethod}{Function method to use to download sankey script. ?download.file for more detail on parameter.}
 }
+\value{
+global JavaScript and CSS files.
+}
 \description{
 Internally generates supporting JavaScript and CSS files.
 }
 \examples{
-initSankey("temp") # Creates a temp folder to output HTML files and necesary dependencies.
+initSankey() # Generates supporting JavaScript and CSS files.
 }
 \keyword{download}
 \keyword{sankey}
