@@ -65,8 +65,12 @@ initSankey() <span class="pl-c"># same as initSankey(directory=getwd())</span>
 
 <span class="pl-smi">Sankey</span> <span class="pl-k">&lt;-</span> makeSankey(<span class="pl-smi">List</span>, <span class="pl-v">averagePath</span> <span class="pl-k">=</span> <span class="pl-c1">TRUE</span>) <span class="pl-c"># calculate colour values</span>
 <span class="pl-smi">Sankeyd</span> <span class="pl-k">&lt;-</span> drawSankey(<span class="pl-smi">Sankey</span>,<span class="pl-v">caption</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Regulatory pathway<span class="pl-pds">"</span></span>,
-<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">1400</span>, <span class="pl-v">height</span><span class="pl-k">=</span><span class="pl-c1">900</span>)
-writeSankey(<span class="pl-v">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>FDRpathways<span class="pl-pds">"</span></span>) <span class="pl-c"># write to working directory as ’FDRpathways.html’</span></pre></div>
+<span class="pl-v">width</span><span class="pl-k">=</span><span class="pl-c1">1400</span>, <span class="pl-v">height</span><span class="pl-k">=</span><span class="pl-c1">900</span>) <span class="pl-c"># raw HTML generated</span>
+writeSankey(<span class="pl-v">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>FDRpathways<span class="pl-pds">"</span></span>) <span class="pl-c"># write to working directory as ’FDRpathways.html’</span>
+
+<span class="pl-c"># Use the following to relaunch the diagram as a web page</span>
+library(<span class="pl-smi">htmltools</span>)
+html_print(<span class="pl-smi">Sankeyd</span>)</pre></div>
 
 <h3>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h3>
