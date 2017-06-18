@@ -942,9 +942,14 @@ makeSankey <- function(List, averagePath=FALSE, nodeMin="blue", nodeMax="red", p
                         edgelist$target[i] <- as.character(paste("Loop_",Target, sep="")) # rename target to remove loop
                         paths[[exist]] <- c(paths[[exist]], paste("Loop_",Target, sep=""))
                         loop <- c(paths[[exist]]) # save loop
+                        #add new target_domain and target_range values
+                        if (length(grep(paste("^", edgelist$target[i], "$", sep=""), target_domain)) == 0) { # if not already assigned a color
+                            target_domain <- c(target_domain, edgelist$target[i])
+                            target_range <- c(target_range, target_range[grep(paste("^",Target,"$",sep=""), target_domain)[1]])
+                        }
                     } else {
                         if (length(intersect(loop, paths[[exist]])) > 1) { # Source and known loop members exist!
-                          warning(paste("Sankeys do not produce loops. ", Source, " -> ", Target, " on line ", i," of $reference has been renamed. For optimal figure, please break the loop of ", paste(paths[[exist]],collapse=" -> "), " -> ", Target, " and rerun this function.", sep=""))
+                          # warning(paste("Sankeys do not produce loops. ", Source, " -> ", Target, " on line ", i," of $reference has been renamed. For optimal figure, please break the loop of ", paste(paths[[exist]],collapse=" -> "), " -> ", Target, " and rerun this function.", sep=""))
                         paths[[exist]] <- c(paths[[exist]], paste("Loop_",Target, sep=""))
                         } else {
                         paths[[exist]] <- c(paths[[exist]], Target)
