@@ -10,7 +10,7 @@
 \usepackage{ragged2e}
 \usepackage{hyperref}
 \usepackage{courier}
-\begin{document}
+\begin{document} 
 \SweaveOpts{concordance=TRUE}
 \newenvironment{blockquote}{%
     \par%
@@ -34,7 +34,7 @@ Sankey diagrams are types of flow diagrams comprised of paths and nodes designed
 Dynamic visualization of data is achieved with the Sankey plugin of Mike Bostock's JavaScript library, \href{http://d3js.org/}{D3}. Compared to traditional Sankey diagrams, this package provides novel drawing capabilities to better depict molecular interactions. By enabling input for both path and node values, colours are meaningfully assigned according to a gradient scale rather than being assigned randomly or uniformly. Furthermore, in molecular biology, both positive and negative measurement values are of interest and thus both extremes are scaled for when drawing path widths.
 
     \subsection{Limitations}
-Sankey diagrams are strictly directional flow diagrams and are not suitable for depicting feedback loops (i.e. a path from one node that leads back to itself). Order of input is also important: \textit{all} upstream connections must precede downstream connections to successfully draw the diagram. For example, a list must contain all miRNA-mRNA pairs first, mRNA-gene pairs second.
+Sankey diagrams are strictly directional flow diagrams and are not suitable for depicting feedback loops (i.e. a path from one node that leads back to itself). Order of input is also important: \textit{all} upstream connections must precede downstream connections to successfully draw the diagram. For example, a list must contain all miRNA-mRNA pairs first, mRNA-gene pairs second. This package will check input values and notify user if any feedback loops exist. While rendering an actual loop is possible manually, it is currently not possible as an automatic process in this package. The solution is thus to create a new node. An example is provided under subsection \textit{\hyperref[loop]{What's being visualized?}}
 
 As with all data-driven diagrams, large datasets can be difficult or impossible to visualize and still be able to distinguish individual nodes and paths. While this package does not restrict the amount of paths and nodes defined, it will warn users that the diagram may not be rendered correctly. In most cases, this means less connected paths and nodes may be too small to be rendered at all. In this situation, users have two options: (1) filter the data manually or using the quantitative and qualitative filters of the package, and/or (2) manually define the diagram height and width to be large enough to render all nodes and paths. Instructions on how to perform these actions are described below. 
 
@@ -130,6 +130,31 @@ Basic functions are provided with \textit{Director} to filter the list of source
     \item $filterRelation$ Positively correlated or inversely related source-target pair node or path values.
 \end{itemize}
 \noindent Multiple lists can be created representing different levels of source-target relationships and combined with $append2List$. The package then visually organizes downstream effects to several biologically functional levels. See the package manual for more details and examples for each function.
+
+Additionally, \textit{Director} has built-in checks to ensure the input data (1) contains unique numerical values for each node and path regardless of the number of connections, and (2) does not contain feedback loops. In both cases, a warning will be given to the user indicating a problem in the rendering of the diagram. An example of the second case is given below:
+
+<<echo=TRUE,print=FALSE>>=
+table1_v2 <- rbind(table1, # add to the example two transcript->gene->transcript loops
+    data.frame(source=c("gene1", "gene2"),
+    target=c("transc1", "gene2"),
+    value=c(0.3, -0.8),
+    sourcefc=c(-0.6,-2.2),
+    targetfc=c(-1.7,-2.2),
+    stringsAsFactors=FALSE))
+tempList_v2 <- createList(table1_v2)
+sankey_loop <- makeSankey(tempList_v2)
+@
+<<echo=TRUE,print=TRUE>>=
+sankey_loop$reference[,c(1:6)] # note the change in target names!
+@
+
+The loops are identified as new destination nodes. Continuing with the data visualization will thus produce the following Sankey diagram.
+\begin{figure}[htbp]
+    \begin{center}
+    \includegraphics[width=\textwidth]{figure5.png}
+    \caption{Sankey plot}
+    \end{center}
+\end{figure}
 
 \section{Visual parameters}
 After filtering, the ready list is input to $makeSankey$. This function calculates and assigns drawing values for nodes, assigns colours to nodes, and assigns colours to paths. A red-blue palette is used by default to render diagrams, but colour ranges for both nodes and paths can be defined separately. $drawSankey$  then takes these values to create the HTML containing the interactive Sankey diagram. The HTML file and dependencies can then be saved to a local folder with $writeSankey$. The default is the R working directory obtained with $getwd()$.
